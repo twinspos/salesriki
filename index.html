@@ -349,7 +349,7 @@ async function putProd(n){S.prods[n.id]=n;render();if(mode==='db'){try{await col
 async function delProd(id){delete S.prods[id];render();if(mode==='db'){try{await cols.prods.doc(id).delete()}catch(e){fail(e)}}else{saveLocal();if(mode==='sheet')enqueue({action:'deleteProd',id})}}
 async function putProdsBulk(arr){arr.forEach(n=>S.prods[n.id]=n);render();if(mode==='db'){try{for(const n of arr)await cols.prods.doc(n.id).set(n)}catch(e){fail(e)}}else{saveLocal();if(mode==='sheet')enqueue({action:'bulk',id:'bulkP'+Date.now(),leads:[],acts:[],prods:arr.map(packProd)})}}
 async function delNote(id){delete S.notes[id];render();if(mode==='db'){try{await cols.notes.doc(id).delete()}catch(e){fail(e)}}else{saveLocal();if(mode==='sheet')enqueue({action:'deleteNote',id})}}
-async function putCfg(c){if(JSON.stringify(c).length>45000)toast('⚠️ Catatan/goals sudah sangat panjang — ringkas catatan agar tetap tersimpan ke Sheet.');S.cfg=c;render();if(mode==='db'){try{await cols.base.set({cfg:c})}catch(e){fail(e)}}else{saveLocal();if(mode==='sheet')enqueue({action:'saveCfg',id:'cfg',cfg:c})}}
+async function putCfg(c){if(JSON.stringify(c).length>45000)toast('⚠️ Catatan/goals sudah sangat panjang — ringkas catatan agar tetap tersimpan ke Sheet.');S.cfg=c;render();if(mode==='db'){try{await cols.base.set({cfg:c})}catch(e){fail(e)}}else{saveLocal();if(mode==='sheet'){const cc=Object.assign({},c);delete cc.photo;enqueue({action:'saveCfg',id:'cfg',cfg:cc})}}}
 
 /* ---------- Google Sheet sync ---------- */
 const SHK='shub_sheet',OBK='shub_outbox';
@@ -374,14 +374,14 @@ function packProd(g){return {id:g.id,json:JSON.stringify(g),row:[g.id,g.name,g.c
 function packAct(a){const l=S.leads[a.leadId];return {id:a.id,json:JSON.stringify(a),row:[a.id,a.date,(AM[a.type]||AM.lain).n,l?l.company:a.leadName,a.result,a.nextFU,S.cfg.name].map(vv)}}
 function authBody(){return SH?{key:SH.key,token:SH.token}:{}}
 function saveSH(){try{if(SH)localStorage.setItem(SHK,JSON.stringify(SH));else localStorage.removeItem(SHK)}catch(e){}}
-function authErr(j){const e=new Error(j.error||'Gagal');if(j.auth)e.auth=true;return e}
+function authErr(j){const e=new Error(j.error||'Gagal');if(j.auth)e.auth=true;else e.server=true;return e}
 async function rawPost(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});return await r.json()}
 async function api(body){const j=await rawPost(SH.url,Object.assign(authBody(),body));if(!j.ok)throw authErr(j);return j}
 async function apiGet(){const a=authBody(),u=SH.url;const r=await fetch(u+(u.includes('?')?'&':'?')+'action=all'+(a.token?'&token='+encodeURIComponent(a.token):'')+(a.key?'&key='+encodeURIComponent(a.key):''));const j=await r.json();if(!j.ok)throw authErr(j);return j}
 function sessionOK(){return !!(SH&&SH.url&&SH.token&&SH.exp>Date.now())}
 function enqueue(op){const st=flushing?1:0;const kind=op.action.slice(-3);outbox=outbox.filter((o,i)=>i<st||o.id!==op.id||o.action.slice(-3)!==kind);outbox.push(op);saveOutbox();flush()}
 async function flush(){if(flushing||mode!=='sheet'||!outbox.length||!sessionOK())return;flushing=true;
-  try{while(outbox.length){setSync('Menyimpan… '+outbox.length);try{await api(outbox[0])}catch(e){if(/tidak dikenal/i.test(e.message)){oldGs=true;outbox.shift();saveOutbox();continue}throw e}outbox.shift();saveOutbox()}if(oldGs)showWarn('Catatan belajar baru tersimpan di perangkat ini. Perbarui Code.gs (versi terbaru) agar ikut tersimpan ke Google Sheet.');setSync('✓ Tersinkron Sheet');if(!oldGs)hideWarn()}
+  try{while(outbox.length){setSync('Menyimpan… '+outbox.length);try{await api(outbox[0])}catch(e){if(/tidak dikenal/i.test(e.message)){oldGs=true;outbox.shift();saveOutbox();continue}if(e.server){outbox.shift();saveOutbox();showWarn('Satu perubahan ditolak server: '+e.message);oldGs=true;continue}throw e}outbox.shift();saveOutbox()}if(oldGs)showWarn('Catatan belajar baru tersimpan di perangkat ini. Perbarui Code.gs (versi terbaru) agar ikut tersimpan ke Google Sheet.');setSync('✓ Tersinkron Sheet');if(!oldGs)hideWarn()}
   catch(e){if(e.auth){flushing=false;onAuthFail();return}setSync('⚠ '+outbox.length+' antre');showWarn('Belum terkirim ke Google Sheet ('+e.message+'). Data aman di HP ini & akan dikirim otomatis saat koneksi kembali.')}
   flushing=false}
 function applyOutbox(L,A,N,P){N=N||{};P=P||{};outbox.forEach(o=>{
@@ -398,7 +398,8 @@ async function pullSheet(silent){if(mode!=='sheet'||flushing||!sessionOK())retur
     let P2=Object.assign({},S.prods);if(Array.isArray(j.prods)){P2={};j.prods.forEach(x=>{P2[x.id]=x})}else oldGs=true;
     applyOutbox(L,A,N2,P2);
     S.leads=L;S.acts=A;S.notes=N2;S.prods=P2;if(j.cfg&&!outbox.some(o=>o.action==='saveCfg'))S.cfg=Object.assign({},DEFCFG,j.cfg);
-    saveLocal();render();if(!outbox.length){setSync('✓ Tersinkron Sheet');hideWarn()}}
+    if(typeof j.photo==='string'){const leg=S.cfg.photo;if(!j.photo&&leg){api({action:'setPhoto',photo:leg}).catch(()=>{});lsPh(leg)}else lsPh(j.photo);delete S.cfg.photo}
+    saveLocal();render();if(!outbox.length){setSync('✓ Tersinkron Sheet');if(!oldGs)hideWarn()}}
   catch(e){if(e.auth)return onAuthFail();setSync('⚠ Offline');if(!silent)showWarn('Tidak bisa memuat dari Google Sheet ('+e.message+'). Menampilkan data terakhir di perangkat ini.')}}
 let sheetStarted=false;
 function initSheet(){mode='sheet';$('#acctBtn').hidden=false;if(sheetStarted){loadLocal();render();pullSheet();return}sheetStarted=true;loadLocal();render();setSync('Menghubungkan…');
@@ -441,6 +442,7 @@ async function doLogin(){
   const had=!!(SH&&(SH.key||SH.synced));
   SH={url,token:j.token,exp:j.exp,user:j.name,role:j.role,synced:had};saveSH();
   try{localStorage.setItem('shub_lastname',j.name)}catch(e){}
+  if(typeof j.photo==='string')lsPh(j.photo);
   $('#lgPin').value='';$('#lgPin2').value='';$('#lgKey').value='';$('#login').hidden=true;
   {const f=j.name.split(' ');toast('Selamat datang, '+(f[0].length<=3&&f[1]?f[0]+' '+f[1]:f[0])+' 👋')}
   if(!S.cfg.name)S.cfg.name=j.name;
@@ -532,14 +534,18 @@ async function copy(t){try{await navigator.clipboard.writeText(t);toast('Tersali
 
 /* ---------- render ---------- */
 const LOGO_SVG=$('#hdrLogo').innerHTML,LGLOGO_SVG=$('#lgLogo').innerHTML;
-function applyPhoto(){let ph=S.cfg.photo||'';if(!ph){try{ph=localStorage.getItem('shub_photo')||''}catch(e){}}
-  if(S.cfg.photo){try{localStorage.setItem('shub_photo',S.cfg.photo)}catch(e){}}
+function lsPh(v){try{if(v===undefined)return localStorage.getItem('shub_photo')||'';if(v)localStorage.setItem('shub_photo',v);else localStorage.removeItem('shub_photo')}catch(e){return ''}}
+function curPhoto(){return mode==='sheet'?lsPh():(S.cfg.photo||lsPh())}
+function applyPhoto(){const ph=curPhoto();if(mode!=='sheet'&&S.cfg.photo)lsPh(S.cfg.photo);
   [[$('#hdrLogo'),LOGO_SVG],[$('#lgLogo'),LGLOGO_SVG]].forEach(([el,def])=>{const want=ph?`<img src="${ph}" alt="">`:def;if(el._ph!==ph){el.innerHTML=want;el._ph=ph;el.classList.toggle('has-ph',!!ph)}})}
+async function savePhoto(d){
+  if(mode==='sheet'&&sessionOK()){lsPh(d);render();try{await api({action:'setPhoto',photo:d});toast(d?'Foto tersimpan & tersinkron ✓':'Foto dihapus')}catch(e){if(e.auth)return onAuthFail();toast('Foto tersimpan di perangkat ini, belum tersinkron: '+e.message)}}
+  else{putCfg(Object.assign({},S.cfg,{photo:d}));if(!d)lsPh('');toast(d?'Foto profil disimpan ✓':'Foto dihapus')}}
 function setPhoto(file){if(!file||!/^image\//.test(file.type)){toast('Pilih file gambar');return}
   const url=URL.createObjectURL(file),img=new Image();
-  img.onload=()=>{const N=220,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),m=Math.min(img.width,img.height);
+  img.onload=()=>{const N=160,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d'),m=Math.min(img.width,img.height);
     x.drawImage(img,(img.width-m)/2,(img.height-m)/2.6,m,m,0,0,N,N);URL.revokeObjectURL(url);
-    const d=c.toDataURL('image/jpeg',.82);putCfg(Object.assign({},S.cfg,{photo:d}));toast('Foto profil disimpan ✓')};
+    const d=c.toDataURL('image/jpeg',.72);savePhoto(d)};
   img.onerror=()=>toast('Gambar tidak bisa dibaca');img.src=url}
 function render(){
   refreshProdList();applyPhoto();
@@ -1113,7 +1119,7 @@ document.addEventListener('click',e=>{
   if(t.id==='goLogin')return showLogin();
   if(t.id==='acctBtn')return acctMenu();
   if(t.id==='lgBtn')return doLogin();
-  if(t.id==='phDel'){putCfg(Object.assign({},S.cfg,{photo:''}));try{localStorage.removeItem('shub_photo')}catch(e){}toast('Foto dihapus');return}
+  if(t.id==='phDel'){savePhoto('');return}
   if(t.id==='chgPin')return chgPinForm();
   if(t.id==='mgUsers')return usersMgr();
   if(t.id==='logoutBtn')return logout();
@@ -1473,9 +1479,9 @@ function goalCheck(gid,i,v){const g=(S.cfg.goals||[]).find(x=>x.id===gid);if(!g)
   putCfg(Object.assign({},S.cfg,{goals:(S.cfg.goals||[]).map(x=>x.id===gid?Object.assign({},x,{checklist:c}):x)}))}
 function rTarget(){const c=S.cfg;
   $('#v-target').innerHTML=`<h2>👤 Profil</h2><div class="card">
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px"><div class="ph-prev">${S.cfg.photo?`<img src="${S.cfg.photo}" alt="">`:'<span>📷</span>'}</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px"><div class="ph-prev">${curPhoto()?`<img src="${curPhoto()}" alt="">`:'<span>📷</span>'}</div>
     <div><div style="font-weight:800">Foto profil</div><div class="tip" style="margin:2px 0 8px">Tampil di logo atas & halaman login</div>
-    <div class="btns" style="margin:0"><label class="btn sm n" style="cursor:pointer">${S.cfg.photo?'Ganti foto':'Pilih foto'}<input type="file" id="phIn" accept="image/*" hidden></label>${S.cfg.photo?'<button class="btn sm d" id="phDel">Hapus</button>':''}</div></div></div><div class="f">
+    <div class="btns" style="margin:0"><label class="btn sm n" style="cursor:pointer">${curPhoto()?'Ganti foto':'Pilih foto'}<input type="file" id="phIn" accept="image/*" hidden></label>${curPhoto()?'<button class="btn sm d" id="phDel">Hapus</button>':''}</div></div></div><div class="f">
     <label>Nama kamu<input id="c-name" value="${esc(c.name)}" placeholder="Nama sales"></label>
     <label>Nama atasan / SPV<input id="c-spv" value="${esc(c.spv)}" placeholder="Nama atasan"></label></div></div>
   <h2>📏 Target kerja rutin</h2><div class="card"><div class="tip" style="margin-top:0">Dipakai untuk skor kinerja di Evaluasi, progres di Ringkasan, dan contoh goal.</div><div class="f" style="margin-top:10px">
