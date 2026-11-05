@@ -325,7 +325,7 @@ async function putCfg(c){if(JSON.stringify(c).length>45000)toast('⚠️ Catatan
 
 /* ---------- Google Sheet sync ---------- */
 const SHK='shub_sheet',OBK='shub_outbox';
-const EXEC_URL='__EXEC_URL__';const HOSTED=/^https:/.test(EXEC_URL);
+const EXEC_URL='https://script.google.com/macros/s/AKfycbyQEG73KEHOA6aly3l7EiOur0ks2bBqf_ewgsVYoxU7YeXIUGx4YzWzidp4PmnHaEvUow/exec';const HOSTED=/^https:/.test(EXEC_URL);
 let SH=null,outbox=[],flushing=false,oldGs=false;
 try{SH=JSON.parse(localStorage.getItem(SHK)||'null')}catch(e){}
 try{outbox=JSON.parse(localStorage.getItem(OBK)||'[]')}catch(e){}
