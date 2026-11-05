@@ -1132,7 +1132,7 @@ document.addEventListener('click',e=>{
   if(t.id==='cpActs'){return copy(tsv([['Tanggal','Jenis','Perusahaan','Hasil','Follow-up'],...actsArr().map(a=>[a.date,(AM[a.type]||AM.lain).n,(S.leads[a.leadId]||{}).company||a.leadName,a.result,a.nextFU])]))}
 });
 document.addEventListener('input',e=>{if(e.target.id==='q'){fQ=e.target.value;render()}else if(e.target.id==='gq'){gQ=e.target.value;$('#glosList').innerHTML=glosList()}else if(e.target.id==='pq'){pQ=e.target.value;$('#prodList').innerHTML=prodList()}else if(e.target.id==='kq'){kQ=e.target.value;$('#kbList').innerHTML=kbList()}});
-document.addEventListener('change',e=>{if(e.target.id==='phIn'){setPhoto(e.target.files[0]);e.target.value='';return}const g=e.target.dataset&&e.target.dataset.gc;if(g){const[id,i]=g.split('|');goalCheck(id,+i,e.target.checked)}});
+document.addEventListener('change',e=>{if(e.target.id==='bakFile'){const f=e.target.files[0];e.target.value='';if(f){const r=new FileReader();r.onload=()=>restoreBackup(String(r.result||'').trim());r.onerror=()=>toast('File tidak bisa dibaca');r.readAsText(f)}return}if(e.target.id==='phIn'){setPhoto(e.target.files[0]);e.target.value='';return}const g=e.target.dataset&&e.target.dataset.gc;if(g){const[id,i]=g.split('|');goalCheck(id,+i,e.target.checked)}});
 $('#fab').onclick=()=>{if(view==='act')actForm();else if(view==='kb')kbForm();else if(view==='journal')noteForm();else if(view==='grades')prodForm();else if(view==='goals')goalForm();else leadForm()};
 
 /* =================== MODUL & NAVIGASI =================== */
@@ -1501,8 +1501,8 @@ function rData(){
     <div class="btns"><button class="btn p" id="shOn">Lanjut masuk</button></div>`}</div>
   <h2>💾 Backup & pindah data</h2>
   <div class="card"><div class="tip" style="margin-top:0">Salin backup untuk cadangan atau memindahkan data ke perangkat/versi lain, lalu tempel di kolom pulihkan.</div>
-  <div class="btns"><button class="btn sm" id="cpBak">📋 Salin backup</button></div>
-  <div class="f" style="margin-top:10px"><label class="full">Pulihkan dari backup<textarea id="bakIn" placeholder="Tempel teks backup di sini…"></textarea></label></div>
+  <div class="btns" style="flex-wrap:wrap"><button class="btn sm" id="cpBak">📋 Salin backup</button><label class="btn sm p" style="cursor:pointer">📂 Upload file backup / catatan<input type="file" id="bakFile" accept=".txt,.json,text/plain,application/json" hidden></label></div>
+  <div class="f" style="margin-top:10px"><label class="full">Atau tempel teks backup<textarea id="bakIn" placeholder="Tempel teks backup di sini…"></textarea></label></div>
   <div class="btns"><button class="btn sm n" id="doRestore">Pulihkan</button></div></div>
   <h2>📤 Ekspor data</h2>
   <div class="card"><div class="tip" style="margin-top:0">Salin data dalam format tabel, lalu tempel ke Excel atau Google Sheets.</div>
