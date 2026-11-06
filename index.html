@@ -238,16 +238,76 @@ details.obj summary{cursor:pointer;font-size:14px;list-style:none}details.obj su
 #meet.deckmode.desk .mtop{background:linear-gradient(#0e2d1cee,#0e2d1c00)}
 #meet.deckmode.desk .mbar{background:linear-gradient(#0e2d1c00,#0e2d1cee)}
 .warn{background:var(--amber-soft);color:#7a5400;border-radius:12px;padding:10px 12px;font-size:12.5px;margin-top:12px;display:none}
+nav.tabs{display:none}
+.subnav .in.bar{display:flex;align-items:center;gap:10px;padding:8px 14px}
+.menuBtn{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink,#1b2a4a);border-radius:12px;padding:8px 13px;font-weight:800;font-size:14px;cursor:pointer;flex:none}
+.menuBtn:active{transform:scale(.97)}
+.crumb{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:var(--muted)}
+.crumb b{color:var(--ink,#1b2a4a)}
+.drw{position:fixed;inset:0;z-index:60;visibility:hidden}
+.drw.on{visibility:visible}
+.drwBg{position:absolute;inset:0;background:#0d162b80;opacity:0;transition:opacity .2s}
+.drw.on .drwBg{opacity:1}
+.drwP{position:absolute;top:0;bottom:0;left:0;width:min(300px,86vw);background:#fff;display:flex;flex-direction:column;transform:translateX(-102%);transition:transform .22s ease;box-shadow:8px 0 30px #0003}
+.drw.on .drwP{transform:none}
+.drwH{display:flex;align-items:center;gap:11px;padding:18px 14px 16px;background:linear-gradient(135deg,#1b2a4a,#2c3f66);color:#fff}
+.drwH .logo{width:40px;height:40px;flex:none}
+.drwT{font-weight:800;font-size:17px}.drwS{font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drwH .x{background:#ffffff22;color:#fff;border:0}
+.drwB{flex:1;overflow:auto;padding:8px 8px 14px}
+.grpH{width:100%;display:flex;align-items:center;gap:11px;border:0;background:none;padding:12px 10px;border-radius:12px;font-weight:800;font-size:15px;color:var(--ink,#1b2a4a);cursor:pointer;text-align:left}
+.grpH svg{width:21px;height:21px;flex:none;color:var(--muted)}
+.grpH.cur svg{color:var(--accent)}
+.grpH .car{margin-left:auto;transition:transform .18s;color:var(--muted);font-size:13px}
+.grp.open .grpH .car{transform:rotate(180deg)}
+.grpH:hover,.grpH:active{background:#f3f5f8}
+.grpB{display:none;padding:0 0 6px 30px}
+.grp.open .grpB{display:block}
+.drw .it{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:10px;font-size:14.5px;font-weight:600;color:var(--ink,#1b2a4a);cursor:pointer}
+.drw .it:hover{background:#f3f5f8}
+.drw .it.on{background:#fff3e6;color:var(--accent);font-weight:800}
+.drwF{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
+.drwF .it{text-align:center;font-size:13px;color:var(--muted);background:#f3f5f8}
+.wrap{padding-bottom:90px!important}
+.fab{bottom:22px!important}
+body.drwOn{overflow:hidden}
+.hdrMenu,.hdrTitle{display:none}
+@media (min-width:1024px){
+ header{padding:14px 28px}
+ header .in{max-width:none!important;margin:0}
+ .hdrMenu{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;border:0;background:#ffffff1f;color:#fff;cursor:pointer;flex:none}
+ .hdrMenu:hover{background:#ffffff33}
+ .hdrTitle{display:block;flex:1;min-width:0}
+ .hdrTitle small{display:block;font-size:12px;opacity:.65;font-weight:600;letter-spacing:.3px}
+ .hdrTitle b{display:block;font-size:20px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ header .brandT{display:none}
+ body.pin #hdrLogo{display:none}
+ .subnav{display:none}
+ .wrap{padding-top:18px!important}
+ body.pin .drwH{padding:14px 16px;min-height:68px}
+}
+@media (min-width:1024px){
+ body.pin{padding-left:264px}
+ body.pin .drw{visibility:visible;inset:0 auto 0 0;width:264px;z-index:30}
+ body.pin .drwBg{display:none}
+ body.pin .drwP{transform:none;width:264px;box-shadow:none;border-right:1px solid var(--line)}
+ body.pin #drwX{display:none}
+ body.pin.drwOn{overflow:auto}
+ body.pin .wrap,.wrap{max-width:1040px}
+ body.pin .subnav{top:0}
+}
 </style>
 </head>
 <body>
 <header><div class="in">
+  <button class="hdrMenu" id="hdrMenu" aria-label="Sembunyikan/tampilkan menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <div class="logo" id="hdrLogo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1b2a4a" stroke-width="2" stroke-linejoin="round"><path d="M3 17l3-7h12l3 7z"/><path d="M6 10l2-4h8l2 4"/></svg></div>
-  <div><h1>Sales Hub</h1><div class="sub">Ingot Aluminium</div></div>
+  <div class="brandT"><h1>Sales Hub</h1><div class="sub">Ingot Aluminium</div></div>
+  <div class="hdrTitle" id="hdrTitle"></div>
   <div class="sync" id="sync">Memuat…</div>
   <button class="acct" id="acctBtn" hidden aria-label="Akun"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
 </div></header>
-<div class="subnav"><div class="in"><div class="chips" id="subchips"></div></div></div>
+<div class="subnav"><div class="in bar"><button class="menuBtn" id="menuBtn" aria-label="Buka menu" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></button><div class="crumb" id="crumb"></div></div></div>
 
 <div class="wrap">
   <div class="warn" id="warn"></div>
@@ -272,12 +332,12 @@ details.obj summary{cursor:pointer;font-size:14px;list-style:none}details.obj su
 
 <button class="fab" id="fab" aria-label="Tambah">+</button>
 
-<nav class="tabs"><div class="in">
-  <button data-mod="kegiatan" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>Kegiatan</button>
-  <button data-mod="belajar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg>Belajar</button>
-  <button data-mod="laporan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Laporan</button>
-  <button data-mod="goals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>Goals</button>
-</div></nav>
+<div class="drw" id="drw" aria-hidden="true"><div class="drwBg" id="drwBg"></div>
+<aside class="drwP" role="dialog" aria-label="Menu">
+  <div class="drwH"><div class="logo" id="drwLogo"></div><div style="flex:1;min-width:0"><div class="drwT">Sales Hub</div><div class="drwS" id="drwUser">Ingot Aluminium</div></div><button class="x" id="drwX" aria-label="Tutup menu">✕</button></div>
+  <div class="drwB" id="drwBody"></div>
+  <div class="drwF"><button class="it" id="drwAll">Buka semua</button><button class="it" id="drwNone">Tutup semua</button></div>
+</aside></div>
 
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast"></div>
@@ -349,7 +409,6 @@ const SOURCES=['Kunjungan langsung','Referensi / rekomendasi','Database perusaha
 /* ---------- state & storage ---------- */
 const DEFCFG={name:'',spv:'',tAct:5,tVisit:10,tLeads:20,tTon:50,evKendala:'',evRencana:''};
 let S={leads:{},acts:{},notes:{},prods:{},cfg:Object.assign({},DEFCFG)};
-let AI=null,aiOut={},aiBusy={},aiCtl={},mtgDraft={};
 let mode='local', cols=null, view='home', fStage='aktif', fQ='', fPrio='', actFilter='all', repPeriod='hari', evPeriod='bulan';
 let meet={on:false,i:0,mode:'harian',n:0};
 const ORD=STAGES.map(s=>s.k).filter(k=>k!=='gagal');
@@ -419,7 +478,8 @@ async function pullSheet(silent){if(mode!=='sheet'||flushing||!sessionOK())retur
     S.leads=L;S.acts=A;S.notes=N2;S.prods=P2;if(j.cfg&&!outbox.some(o=>o.action==='saveCfg'))S.cfg=Object.assign({},DEFCFG,j.cfg);
     if('deck' in j){deckSrvMeta=j.deck||null;if(deckSrvMeta&&(!DECK||DECK.ver!==deckSrvMeta.ver))deckTried=false}
     if(typeof j.photo==='string'){const leg=S.cfg.photo;if(!j.photo&&leg){api({action:'setPhoto',photo:leg}).catch(()=>{});lsPh(leg)}else lsPh(j.photo);delete S.cfg.photo}
-    saveLocal();render();if(!outbox.length){setSync('✓ Tersinkron Sheet');if(!oldGs)hideWarn()}}
+    saveLocal();render();if(!outbox.length){setSync('✓ Tersinkron Sheet');if(!oldGs)hideWarn()}
+    autoMail()}
   catch(e){if(e.auth)return onAuthFail();setSync('⚠ Offline');if(!silent)showWarn('Tidak bisa memuat dari Google Sheet ('+e.message+'). Menampilkan data terakhir di perangkat ini.')}}
 let sheetStarted=false;
 function initSheet(){mode='sheet';$('#acctBtn').hidden=false;if(sheetStarted){loadLocal();render();pullSheet();return}sheetStarted=true;loadLocal();render();setSync('Menghubungkan…');
@@ -645,23 +705,21 @@ function rPipe(){
   <div class="mv">${i>0?`<button data-mv="${esc(l.id)}" data-to="${STAGES[i-1].k}">◀</button>`:''}${i<STAGES.length-1?`<button data-mv="${esc(l.id)}" data-to="${STAGES[i+1].k}">▶</button>`:''}</div></div>`).join('')||'<div class="tip" style="text-align:center;padding:10px 0">Kosong</div>'}</div>`}).join('')}</div>`;
 }
 function actItem(a){const l=S.leads[a.leadId];const t=AM[a.type]||AM.lain;
-  return `<div class="act"><div class="ic">${t.i}</div><div style="flex:1;min-width:0"><div class="t">${esc(t.n)} — ${esc(l?l.company:(a.leadName||'(lead terhapus)'))}</div><div class="m">${esc(a.result||'')}${a.nextFU?`\n➜ Follow-up: ${fmtD(a.nextFU)}`:''}</div></div><button class="x" style="width:28px;height:28px;font-size:13px;flex:none" data-dela="${esc(a.id)}" title="Hapus">✕</button></div>`}
+  return `<div class="act"><div class="ic">${t.i}</div><div style="flex:1;min-width:0"><div class="t">${esc(t.n)} — ${esc(l?l.company:(a.leadName||'(lead terhapus)'))}</div><div class="m">${esc(a.result||'')}${a.nextFU?`\n➜ Follow-up: ${fmtD(a.nextFU)}`:''}</div>${a.link?`<a href="${esc(a.link)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:700">Buka di Gmail ↗</a>`:''}</div><button class="x" style="width:28px;height:28px;font-size:13px;flex:none" data-dela="${esc(a.id)}" title="Hapus">✕</button></div>`}
 function rAct(){
   let A=actsArr();const t=TODAY();
   if(actFilter==='hari')A=A.filter(a=>a.date===t);else if(actFilter==='minggu')A=A.filter(a=>a.date>=weekStart());else if(actFilter==='bulan')A=A.filter(a=>a.date>=monthStart());
   const g={};A.forEach(a=>{(g[a.date]=g[a.date]||[]).push(a)});
   $('#v-act').innerHTML=`<div class="chips" style="margin-top:14px">${[['all','Semua'],['hari','Hari ini'],['minggu','Minggu ini'],['bulan','Bulan ini']].map(([k,n])=>`<button class="chip ${actFilter===k?'on':''}" data-af="${k}">${n}</button>`).join('')}</div>
-  <div class="btns" style="margin-top:8px"><button class="btn n" id="addAct" style="flex:1">+ Catat aktivitas</button></div>
+  <div class="btns" style="margin-top:8px"><button class="btn n" id="addAct" style="flex:1">+ Catat aktivitas</button>${mode==='sheet'?'<button class="btn" id="chkMail">📥 Cek balasan email</button>':''}</div>
   ${Object.keys(g).length?Object.keys(g).sort().reverse().map(d=>`<div class="dayh">${fmtD(d,true)} · ${g[d].length}</div><div class="list">${g[d].map(actItem).join('')}</div>`).join(''):'<div class="empty" style="margin-top:14px">Belum ada aktivitas di periode ini.</div>'}`;
 }
 function rRep(){
   $('#v-rep').innerHTML=`<button class="btn n" data-meet="harian" style="width:100%;margin-top:14px">🎤 Mode Rapat — Daily Meeting</button>
   <h2>📝 Laporan untuk atasan</h2>
   <div class="chips">${[['hari','Harian'],['minggu','Mingguan'],['bulan','Bulanan']].map(([k,n])=>`<button class="chip ${repPeriod===k?'on':''}" data-rp="${k}">${n}</button>`).join('')}</div>
-  ${aiBox('rep','Rapikan laporan dengan AI')}
   <textarea class="rep" id="rep" readonly>${esc(buildReport())}</textarea>
-  <div class="btns"><button class="btn ${AI?'sm':'p'}" id="cpRep">📋 Salin laporan otomatis (tanpa AI)</button></div>
-  ${mtgCard()}
+  <div class="btns"><button class="btn p" id="cpRep">📋 Salin laporan (untuk WhatsApp)</button></div>
   <div class="btns"><button class="btn sm" data-v="lrep">📚 Laporan pembelajaran</button></div>
   <div class="tip">Profil & target ada di menu <b>Goals → Target & profil</b>. Sinkron, backup & ekspor di <b>Data & sinkron</b>.</div>`;
 }
@@ -1050,18 +1108,101 @@ function leadDetail(id){
   const row=(k,v)=>v?`<dt>${k}</dt><dd>${esc(v)}</dd>`:'';
   openSheet(`<h3><span>${esc(l.company)}</span><button class="x" data-close>✕</button></h3>
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${badge(l.stage)}<span style="font-size:12px;font-weight:700;color:${(PRIO[l.prio]||PRIO.warm).c}"><span class="dot" style="background:${(PRIO[l.prio]||PRIO.warm).c}"></span>${(PRIO[l.prio]||PRIO.warm).n}</span>${fuInfo(l)}</div>
-  <div class="qa">${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}${l.phone?`<a href="tel:${esc(l.phone)}">📞 ${esc(l.phone)}</a>`:''}<button id="dPres">🎤 Presentasi</button><button id="dAct">+ Aktivitas</button><button id="dEdit">✏️ Edit</button></div>
+  <div class="qa">${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}${l.phone?`<a href="tel:${esc(l.phone)}">📞 ${esc(l.phone)}</a>`:''}<button id="dMail">✉️ Email</button><button id="dPres">🎤 Presentasi</button><button id="dAct">+ Aktivitas</button><button id="dEdit">✏️ Edit</button></div>
   <div style="font-size:12px;font-weight:700;color:var(--muted);margin-top:4px">Pindah tahap:</div>
   <div class="stagepick">${STAGES.map(s=>`<button data-st="${s.k}" style="${l.stage===s.k?`background:${s.bg};color:${s.c};border-color:${s.c}`:''}">${s.n}</button>`).join('')}</div>
   <h2 style="margin-top:16px">Info</h2>
   <dl class="kv card">${row('PIC',[l.pic,l.role].filter(Boolean).join(' – '))}${row('Email',l.email)}${row('Industri',l.industry)}${row('Kota',l.city)}${row('Alamat',l.address)}${row('Produk',l.product)}${row('Kebutuhan',l.vol?fmtN(num(l.vol))+' ton/bulan':'')}${row('Harga target',l.price?'Rp '+Number(String(l.price).replace(/\D/g,'')).toLocaleString('id-ID')+'/kg':'')}${row('Supplier lama',l.supplier)}${row('Termin',l.terms)}${row('Sumber',l.source)}${row('Rencana',l.nextAction)}${row('Catatan',l.notes)}${row('Dibuat',fmtD(l.created))}</dl>
   ${b2bSections(l)}
   <h2>Riwayat aktivitas <span class="cnt">${A.length}</span></h2>
-  <div class="list">${A.length?A.map(a=>{const t=AM[a.type]||AM.lain;return `<div class="act"><div class="ic">${t.i}</div><div><div class="t">${t.n} · ${fmtD(a.date)}</div><div class="m">${esc(a.result||'')}</div></div></div>`}).join(''):'<div class="empty">Belum ada aktivitas tercatat.</div>'}</div>`);
+  <div class="list">${A.length?A.map(a=>{const t=AM[a.type]||AM.lain;return `<div class="act"><div class="ic">${t.i}</div><div><div class="t">${t.n} · ${fmtD(a.date)}</div><div class="m">${esc(a.result||'')}</div>${a.link?`<a href="${esc(a.link)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:700">Buka di Gmail ↗</a>`:''}</div></div>`}).join(''):'<div class="empty">Belum ada aktivitas tercatat.</div>'}</div>`);
   $('#dEdit').onclick=()=>leadForm(id);
   $('#dPres').onclick=()=>{closeSheet();if(DECK)startDeck(id);else{toast('Upload materi presentasi dulu');go('present')}};
   $('#dAct').onclick=()=>actForm(id);
+  $('#dMail').onclick=()=>mailForm(id);
   document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const o=Object.assign({},l,{stage:b.dataset.st,updated:TODAY()});if(o.stage==='deal'&&l.stage!=='deal')o.dealDate=TODAY();putLead(o);toast('Tahap: '+SM[o.stage].n);leadDetail(id)});
+}
+let mailBusy=false;
+function autoMail(){let t=0;try{t=+localStorage.getItem('shub_mchk')||0}catch(e){}if(Date.now()-t>5*60000)checkMail(false)}
+async function checkMail(manual){
+  if(mode!=='sheet'||!sessionOK()){if(manual)toast('Masuk ke Google Sheet dulu');return}
+  if(mailBusy)return;const sent={};Object.values(S.acts).forEach(a=>{if(a.type!=='email'||!a.result||/^📥/.test(a.result))return;const m=a.result.match(/→\s*([^\s(]+)/);if(m)(sent[a.leadId]=sent[a.leadId]||[]).push(...m[1].split(',').filter(x=>/@/.test(x)))});
+  const em=l=>[...new Set([l.email,...(l.mailTo||[]),...(sent[l.id]||[])].filter(Boolean))].join(',');const L=leadsArr().filter(l=>em(l)&&l.stage!=='gagal');
+  if(!L.length){if(manual)toast('Belum ada lead yang punya email');return}
+  mailBusy=true;if(manual)toast('Mengecek Gmail…');
+  try{const r=await api({action:'mailCheck',days:manual?60:30,leads:L.map(l=>({id:l.id,email:em(l)}))});
+    try{localStorage.setItem('shub_mchk',String(Date.now()))}catch(e){}
+    let n=0;const hit={},fresh=[];
+    (r.items||[]).sort((a,b)=>a.date.localeCompare(b.date)).forEach(m=>{const aid='Am'+m.id;if(S.acts[aid]||!S.leads[m.leadId])return;
+      const l=S.leads[m.leadId],d=ds(new Date(m.date));
+      putAct({id:aid,leadId:l.id,leadName:l.company,type:'email',date:d,result:`📥 Balasan dari ${m.from}: "${m.subject}"\n${m.snippet}`,link:'https://mail.google.com/mail/#all/'+m.thread,nextFU:'',ts:m.date});n++;hit[l.id]=d;fresh.push(Object.assign({company:l.company},m))});
+    Object.keys(hit).forEach(id=>{const l=S.leads[id];const o=Object.assign({},l,{updated:TODAY(),lastAct:hit[id]>(l.lastAct||'')?hit[id]:l.lastAct,replied:hit[id]});
+      if(o.stage==='baru')o.stage='dihubungi';if(!o.nextFU||o.nextFU>TODAY())o.nextFU=TODAY();o.nextAction='Balas email klien (cek Gmail)';putLead(o)});
+    if(n)mailPopup(fresh.reverse());else if(manual){try{$('#toast').classList.remove('show')}catch(e){}
+      const old=(r.items||[]).length;
+      openSheet(`<h3>📥 Tidak ada balasan baru<button class="x" data-close>✕</button></h3>
+      <div class="card" style="font-size:13.5px;line-height:1.6">
+        <div>Gmail yang dicek: <b>${esc(r.account||'-')}</b></div>
+        <div>Email masuk yang ditemukan (60 hari): <b>${r.scanned||0}</b>${r.own?` · ${r.own} dari akun sendiri (dilewati)`:''}</div>
+        <div>Sudah tercatat sebelumnya: <b>${old}</b></div>
+        <div style="margin-top:8px">Alamat/domain klien yang dicek (${(r.keys||[]).length}):</div>
+        <div style="color:var(--muted);word-break:break-all">${(r.keys||[]).map(esc).join(', ')||'-'}</div></div>
+      <div class="tip">Supaya terdeteksi: email balasan harus dikirim <b>dari alamat lain</b> (bukan ${esc(r.account||'akun ini')}) dan alamat/domain pengirimnya harus ada di kolom <b>Email</b> lead — atau pernah kamu kirimi email lewat tombol ✉️ Email. Email baru kadang perlu 1–2 menit sebelum bisa dicari.</div>`)}
+  }catch(e){if(manual){const m=String(e&&e.message||e);toast(/tidak dikenal|izin|permission|authoriz/i.test(m)?'Gmail belum terhubung — jalankan izinkanGmail & deploy versi baru':'Gagal cek email: '+m)}}
+  finally{mailBusy=false}}
+function mailPopup(M){
+  try{if('Notification' in window&&Notification.permission==='granted'){const x=new Notification(`📥 ${M.length} email baru dari klien`,{body:M.slice(0,3).map(m=>m.company+': '+m.subject).join('\n'),tag:'shub-mail'});x.onclick=()=>{window.focus();x.close()}}}catch(e){}
+  try{navigator.vibrate&&navigator.vibrate([150,80,150])}catch(e){}
+  try{$('#toast').classList.remove('show')}catch(e){}
+  document.title='('+M.length+') 📥 Sales Hub';setTimeout(()=>{document.title='Sales Hub'},60000);
+  openSheet(`<h3>📥 ${M.length} email baru dari klien<button class="x" data-close>✕</button></h3>
+  <div class="list">${M.map(m=>`<div class="card" style="margin-bottom:9px"><div style="font-weight:800">${esc(m.company)}</div>
+    <div style="font-size:12.5px;color:var(--muted);margin:2px 0 6px">${esc(m.from)} · ${(()=>{const d=new Date(m.date);return fmtD(ds(d))+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')})()}</div>
+    <div style="font-weight:700;font-size:13.5px">${esc(m.subject||'(tanpa subjek)')}</div>
+    <div style="font-size:13px;margin-top:4px;white-space:pre-wrap">${esc(m.snippet)}</div>
+    <div class="btns" style="margin-top:8px"><a class="btn sm p" href="https://mail.google.com/mail/#all/${esc(m.thread)}" target="_blank" rel="noopener" style="text-decoration:none">Buka & balas di Gmail ↗</a><button class="btn sm n" data-open="${esc(m.leadId)}">Lihat lead</button></div></div>`).join('')}</div>
+  <div class="tip">Sudah tercatat otomatis di riwayat aktivitas, dan lead-nya masuk daftar follow-up hari ini.</div>`)}
+function askNotif(){try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
+function mailPrefs(){try{return JSON.parse(localStorage.getItem('shub_mail')||'{}')}catch(e){return {}}}
+function mailTpl(l,P){
+  const g=(l.product||'ADC12').replace(/^Cek.*$/,'ADC12');
+  const sig=P.sig||`${(SH&&SH.user)||'Riki'}\nSales – PT Sumi Win Mukti\nHP/WA: `;
+  return {subject:`Perkenalan & Penawaran Ingot Aluminium ${g} – PT Sumi Win Mukti`,
+    body:`Yth. Bapak/Ibu bagian Purchasing\n${l.company}\n\nDengan hormat,\n\nPerkenalkan, saya dari PT Sumi Win Mukti, produsen ingot aluminium (${g} dan grade lainnya) dengan kapasitas produksi ±2.500 ton/bulan. Kami juga melayani jasa tolling.\n\nKami ingin memperkenalkan produk kami sebagai alternatif pasokan bahan baku untuk ${l.company}. Kami siap mengirimkan sampel beserta sertifikat komposisi kimia untuk diuji.\n\nMohon email ini dapat diteruskan ke bagian Purchasing yang menangani bahan baku aluminium. Apabila berkenan, kami ingin menjadwalkan kunjungan atau meeting singkat.\n\nTerima kasih atas perhatiannya.\n\nHormat saya,\n${sig}`};
+}
+function mailForm(id){
+  const l=S.leads[id];if(!l)return;const P=mailPrefs(),T=mailTpl(l,P);
+  const online=mode==='sheet'&&sessionOK();
+  openSheet(`<h3>Kirim email<button class="x" data-close>✕</button></h3>
+  <div class="tip" style="margin-top:0">${online?'Email dikirim dari <b>Gmail pemilik Google Sheet</b><span id="mFrom"></span> dan otomatis tercatat di riwayat aktivitas.':'Mode ini belum tersambung ke Google Sheet — tombol di bawah akan membuka aplikasi email di HP.'}</div>
+  <form id="mf" class="f">
+    ${online?`<label class="full">Kirim dari<select name="from" id="mFromSel"><option value="${esc(P.from||'')}">${esc(P.from||'(memuat…)')}</option></select></label>`:''}
+    <label class="full">Kepada<input name="to" type="email" multiple value="${esc(l.email||'')}" placeholder="purchasing@perusahaan.co.id"></label>
+    <label class="full">CC (mis. email atasan)<input name="cc" value="${esc(P.cc||'')}" placeholder="opsional"></label>
+    <label class="full">Nama pengirim<input name="fromName" value="${esc(P.fromName||((SH&&SH.user)?SH.user+' – PT Sumi Win Mukti':'PT Sumi Win Mukti'))}"></label>
+    <label class="full">Subjek<input name="subject" value="${esc(T.subject)}"></label>
+    <label class="full">Isi email<textarea name="body" style="min-height:280px">${esc(T.body)}</textarea></label>
+    <label class="full">Tanda tangan (disimpan untuk email berikutnya)<textarea name="sig" style="min-height:70px">${esc(P.sig||'')}</textarea></label>
+  </form>
+  <div class="tip">Ubah tanda tangan lalu tekan <b>Pakai tanda tangan</b> untuk memperbarui isi email.</div>
+  <div class="btns" style="flex-wrap:wrap">${online?'<button class="btn p" id="mSend">📤 Kirim dari Gmail</button>':''}<button class="btn ${online?'n':'p'}" id="mOpen">Buka di aplikasi email</button><button class="btn sm" id="mSig">Pakai tanda tangan</button></div>`);
+  const f=$('#mf');
+  const save=()=>{const d=Object.fromEntries(new FormData(f).entries());try{localStorage.setItem('shub_mail',JSON.stringify({cc:d.cc.trim(),fromName:d.fromName.trim(),sig:d.sig.trim(),from:d.from||''}))}catch(e){};return d};
+  const log=(d,how)=>{const a={id:uid('A'),leadId:id,leadName:l.company,type:'email',date:TODAY(),result:`${how}: "${d.subject}" → ${d.to}${d.cc?' (cc '+d.cc+')':''}`,nextFU:addDays(3),ts:new Date().toISOString()};putAct(a);
+    const o=Object.assign({},S.leads[id],{updated:TODAY(),lastAct:a.date});if(o.stage==='baru')o.stage='dihubungi';if(!o.nextFU||o.nextFU<=a.date)o.nextFU=addDays(3);if(!o.email&&d.to)o.email=d.to;
+    const rc=String(d.to||'').toLowerCase().split(/[,;\s]+/).filter(x=>/@/.test(x));o.mailTo=[...new Set([...(o.mailTo||[]),...rc])].slice(-10);putLead(o)};
+  const ok=d=>{if(!d.to.trim()){f.to.focus();toast('Isi alamat email tujuan');return false}if(!d.subject.trim()||!d.body.trim()){toast('Subjek & isi wajib diisi');return false}return true};
+  $('#mSig').onclick=()=>{const d=save();const t=mailTpl(l,mailPrefs());f.body.value=t.body;toast('Tanda tangan dipakai')};
+  $('#mOpen').onclick=()=>{const d=save();if(!ok(d))return;
+    location.href='mailto:'+encodeURIComponent(d.to.trim()).replace(/%40/g,'@').replace(/%2C/g,',')+'?'+[d.cc?'cc='+encodeURIComponent(d.cc):'','subject='+encodeURIComponent(d.subject),'body='+encodeURIComponent(d.body)].filter(Boolean).join('&');
+    setTimeout(()=>log(d,'Email dibuka di aplikasi email'),800)};
+  if(online){
+    api({action:'mailInfo'}).then(r=>{const e=$('#mFrom');if(e)e.innerHTML=` (sisa kuota hari ini ${r.quota})`;
+      const sel=$('#mFromSel');if(sel){const all=[r.from].concat(r.aliases||[]);const cur=all.includes(P.from)?P.from:r.from;sel.innerHTML=all.map(a=>`<option ${a===cur?'selected':''}>${esc(a)}</option>`).join('')}}).catch(e=>{const x=$('#mFrom');if(x)x.innerHTML=' — <span style="color:var(--red)">Gmail belum diizinkan. Jalankan <b>izinkanGmail</b> di Apps Script, lalu deploy versi baru.</span>'});
+    $('#mSend').onclick=async()=>{const d=save();if(!ok(d))return;const b=$('#mSend');b.disabled=true;b.textContent='Mengirim…';
+      try{const r=await api({action:'sendMail',from:d.from||'',to:d.to,cc:d.cc,subject:d.subject,body:d.body,fromName:d.fromName});log(d,'Email terkirim dari '+(r.from||'Gmail'));closeSheet();toast('Email terkirim ✓')}
+      catch(e){b.disabled=false;b.textContent='📤 Kirim dari Gmail';const m=String(e&&e.message||e);toast(/Aksi tidak dikenal|izin|permission|authoriz/i.test(m)?'Gmail belum terhubung — jalankan izinkanGmail & deploy versi baru':'Gagal: '+m)}};
+  }
 }
 function actForm(leadId){
   const L=leadsArr().sort((a,b)=>a.company.localeCompare(b.company));
@@ -1114,10 +1255,11 @@ document.addEventListener('click',e=>{
   if(t.id==='pSeed')return seedProds();
   if(t.id==='pNew')return prodForm();
   if(t.dataset.nt!==undefined){nTop=t.dataset.nt;return render()}
-  if(t.dataset.lp){if(lrPeriod!==t.dataset.lp&&!aiBusy.lrep)delete aiOut.lrep;lrPeriod=t.dataset.lp;return render()}
+  if(t.dataset.lp){lrPeriod=t.dataset.lp;return render()}
   if(t.id==='addNote')return noteForm();
   if(t.id==='saveLp'){putCfg(Object.assign({},S.cfg,{learnPlan:$('#lpIn').value}));toast('Rencana disimpan ✓');return}
   if(t.id==='cpLr')return copy(buildLearnReport());
+  if(t.id==='aiLr'){if(!lrData().N.length)return toast('Belum ada catatan di periode ini');copy(aiPrompt());setTimeout(()=>window.open('https://claude.ai/new','_blank','noopener'),400);return}
   if(t.dataset.wn){const tp=TOPICS.find(x=>x.id===t.dataset.wn);return noteForm(null,{topic:T2N[tp.id]||'Lainnya',title:tp.t,source:'Materi Sales Hub'})}
   if(t.dataset.lr){const r=Object.assign({},L_().read||{});r[t.dataset.lr]=TODAY();setLearn({read:r});toast('Materi selesai ✓');return openTopic(t.dataset.lr)}
   if(t.dataset.gf!==undefined){gFam=t.dataset.gf;return render()}
@@ -1129,10 +1271,11 @@ document.addEventListener('click',e=>{
   if(t.dataset.fs){fStage=t.dataset.fs;return render()}
   if(t.dataset.fp!==undefined){fPrio=t.dataset.fp;return render()}
   if(t.dataset.af){actFilter=t.dataset.af;return render()}
-  if(t.dataset.rp){if(repPeriod!==t.dataset.rp&&!aiBusy.rep)delete aiOut.rep;repPeriod=t.dataset.rp;return render()}
+  if(t.dataset.rp){repPeriod=t.dataset.rp;return render()}
   if(t.dataset.mv){const l=S.leads[t.dataset.mv];if(l){const o=Object.assign({},l,{stage:t.dataset.to,updated:TODAY()});if(o.stage==='deal'&&l.stage!=='deal')o.dealDate=TODAY();putLead(o)}return}
   if(t.dataset.dela){const a=S.acts[t.dataset.dela];confirmBox('Hapus catatan aktivitas ini?',()=>{delAct(a.id);closeSheet();toast('Aktivitas dihapus')});return}
   if(t.id==='addAct')return actForm();
+  if(t.id==='chkMail'){askNotif();return checkMail(true)}
   if(t.id==='saveCfg'){putCfg(Object.assign({},S.cfg,{name:$('#c-name').value.trim(),spv:$('#c-spv').value.trim(),tAct:num($('#c-ta').value)||5,tVisit:num($('#c-tv').value)||10,tLeads:num($('#c-tl').value)||20,tTon:num($('#c-tt').value)||50,salesPhone:$('#c-ph').value.trim(),salesEmail:$('#c-em').value.trim()}));toast('Profil & target disimpan ✓');return}
   if(t.dataset.meet){return openMeet(t.dataset.meet)}
   if(t.dataset.mm){meet.mode=t.dataset.mm;meet.i=0;return drawMeet()}
@@ -1160,6 +1303,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='q'){fQ=e.target.value;render()}else if(e.target.id==='gq'){gQ=e.target.value;$('#glosList').innerHTML=glosList()}else if(e.target.id==='pq'){pQ=e.target.value;$('#prodList').innerHTML=prodList()}else if(e.target.id==='kq'){kQ=e.target.value;$('#kbList').innerHTML=kbList()}});
 document.addEventListener('change',e=>{
+  if(e.target.id==='dkLead'){if(e.target.value==='__new'){e.target.value=dkSel||'';quickClient()}else dkSel=e.target.value;return}
   if(e.target.id==='dkJson'){const f=e.target.files[0];e.target.value='';if(f){const r=new FileReader();r.onload=()=>{try{saveDeck(parseDeck(String(r.result)))}catch(x){toast(x.message)}};r.readAsText(f)}return}
   if(e.target.id==='dkImgs'){const fs=[...e.target.files];e.target.value='';deckFromImages(fs,($('#dkTitle')||{}).value);return}
   if(e.target.id==='bakFile'){const f=e.target.files[0];e.target.value='';if(f){const r=new FileReader();r.onload=()=>restoreBackup(String(r.result||'').trim());r.onerror=()=>toast('File tidak bisa dibaca');r.readAsText(f)}return}if(e.target.id==='phIn'){setPhoto(e.target.files[0]);e.target.value='';return}const g=e.target.dataset&&e.target.dataset.gc;if(g){const[id,i]=g.split('|');goalCheck(id,+i,e.target.checked)}});
@@ -1173,16 +1317,36 @@ const MODS={
   goals:{n:'Goals',v:[['goals','Goals saya'],['target','Target & profil']]}};
 const lastView={kegiatan:'home',belajar:'journal',laporan:'rep',goals:'goals'};
 function modOf(v){return Object.keys(MODS).find(m=>MODS[m].v.some(x=>x[0]===v))||'kegiatan'}
+const MOD_IC=JSON.parse('{"kegiatan": "<svg viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"><rect x=\\"3\\" y=\\"7\\" width=\\"18\\" height=\\"13\\" rx=\\"2\\"/><path d=\\"M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18\\"/></svg>", "belajar": "<svg viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"><path d=\\"M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z\\"/></svg>", "laporan": "<svg viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"><path d=\\"M4 20V10M10 20V4M16 20v-7M22 20H2\\"/></svg>", "goals": "<svg viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"2\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"><circle cx=\\"12\\" cy=\\"12\\" r=\\"9\\"/><circle cx=\\"12\\" cy=\\"12\\" r=\\"5\\"/><circle cx=\\"12\\" cy=\\"12\\" r=\\"1.5\\"/></svg>"}');
+let grpOpen=(()=>{try{return JSON.parse(localStorage.getItem('shub_grp')||'null')}catch(e){return null}})();
+function saveGrp(){try{localStorage.setItem('shub_grp',JSON.stringify(grpOpen))}catch(e){}}
+function drawDrawer(){
+  const m=modOf(view);if(!grpOpen){grpOpen={};grpOpen[m]=true}if(pinned&&wide&&pinned()&&!grpOpen[m]){grpOpen[m]=true;saveGrp()}
+  $('#drwBody').innerHTML=Object.keys(MODS).map(k=>`<div class="grp ${grpOpen[k]?'open':''}"><button class="grpH ${k===m?'cur':''}" data-grp="${k}" aria-expanded="${!!grpOpen[k]}">${MOD_IC[k]}${MODS[k].n}<span class="car">▾</span></button>
+    <div class="grpB">${MODS[k].v.map(([v,n])=>`<button class="it ${v===view?'on':''}" data-v="${v}">${n}</button>`).join('')}</div></div>`).join('');
+  const lg=$('#hdrLogo'),dl=$('#drwLogo');if(lg&&dl)dl.innerHTML=lg.innerHTML;
+  const u=(typeof SH!=='undefined'&&SH&&SH.user)?SH.user:'';$('#drwUser').textContent=u?'Masuk sebagai '+u:'Ingot Aluminium';
+}
+const wide=matchMedia('(min-width:1024px)');
+function sidePref(){try{return localStorage.getItem('shub_side')!=='0'}catch(e){return true}}
+function pinned(){return wide.matches&&document.body.classList.contains('pin')}
+function applyPin(){const on=false;document.body.classList.toggle('pin',on);if(on){drawDrawer();$('#drw').classList.remove('on');document.body.classList.remove('drwOn')}$('#menuBtn').setAttribute('aria-expanded',String(on))}
+function toggleMenu(){if(false){const on=!document.body.classList.contains('pin');try{localStorage.setItem('shub_side',on?'1':'0')}catch(e){}applyPin();return}openDrawer()}
+function openDrawer(){const m=modOf(view);if(grpOpen&&!grpOpen[m]){grpOpen[m]=true;saveGrp()}drawDrawer();$('#drw').classList.add('on');$('#drw').setAttribute('aria-hidden','false');$('#menuBtn').setAttribute('aria-expanded','true');document.body.classList.add('drwOn')}
+function closeDrawer(){if(pinned()){drawDrawer();return}$('#drw').classList.remove('on');$('#drw').setAttribute('aria-hidden','true');$('#menuBtn').setAttribute('aria-expanded','false');document.body.classList.remove('drwOn')}
 function go(v){
-  if(v==='meet'){openMeet('harian');return}
-  view=v;const m=modOf(v);lastView[m]=v;
-  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.mod===m));
-  $('#subchips').innerHTML=MODS[m].v.map(([k,n])=>`<button class="chip ${k===v?'on':''}" data-v="${k}">${n}</button>`).join('');
+  if(v==='meet'){closeDrawer();openMeet('harian');return}
+  view=v;const m=modOf(v);lastView[m]=v;closeDrawer();
+  const nm=(MODS[m].v.find(x=>x[0]===v)||[,''])[1];$('#crumb').innerHTML=`${esc(MODS[m].n)} › <b>${esc(nm)}</b>`;$('#hdrTitle').innerHTML=`<small>${esc(MODS[m].n.toUpperCase())}</small><b>${esc(nm)}</b>`;
   document.querySelectorAll('.wrap>section').forEach(s=>s.hidden=s.id!=='v-'+view);
   $('#fab').style.display=['home','leads','pipe','act','kb','goals','journal','grades'].includes(v)?'':'none';
   window.scrollTo(0,0);render();
-  const on=$('#subchips .on');if(on){const p=on.parentElement;p.scrollLeft=on.offsetLeft-p.clientWidth/2+on.clientWidth/2}
 }
+$('#menuBtn').onclick=toggleMenu;$('#hdrMenu').onclick=toggleMenu;try{wide.addEventListener('change',applyPin)}catch(e){wide.addListener(applyPin)}applyPin();$('#drwX').onclick=closeDrawer;$('#drwBg').onclick=closeDrawer;
+$('#drwBody').addEventListener('click',e=>{const h=e.target.closest('[data-grp]');if(!h)return;e.stopPropagation();const k=h.dataset.grp;grpOpen=grpOpen||{};grpOpen[k]=!grpOpen[k];saveGrp();drawDrawer()});
+$('#drwAll').onclick=()=>{grpOpen={};Object.keys(MODS).forEach(k=>grpOpen[k]=true);saveGrp();drawDrawer()};
+$('#drwNone').onclick=()=>{grpOpen={};saveGrp();drawDrawer()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#drw').classList.contains('on'))closeDrawer()});
 function L_(){return S.cfg.learn||{read:{},quiz:{}}}
 function setLearn(o){putCfg(Object.assign({},S.cfg,{learn:Object.assign({read:{},quiz:{}},L_(),o)}))}
 
@@ -1611,31 +1775,58 @@ function lrData(){const r=lrRange(),N=notesArr().filter(n=>n.date>=r.from&&n.dat
   const sc=N.filter(n=>+n.score),avg=sc.length?sc.reduce((a,n)=>a+(+n.score),0)/sc.length:0;
   const L=L_();return {r,N,by,avg,days:new Set(N.map(n=>n.date)).size,read:TOPICS.filter(t=>(L.read||{})[t.id]).length,best:(L.quiz||{}).best,
     q:N.filter(n=>n.question),ap:N.filter(n=>n.apply),weak:N.filter(n=>+n.score&&+n.score<=2)}}
-function buildLearnReport(){const d=lrData(),r=d.r;
+function tidyPts(t){
+  const out=[];String(t||'').replace(/\r/g,'').split(/\n+|(?<=[.!?;])\s+/).forEach(x=>{
+    x=fixTerms(x);
+    x=x.replace(/^\s*(?:[-•*·>]+|\d+[.)])\s*/,'').replace(/[;,]\s*$/,'').replace(/\s+/g,' ').trim();if(x.length<2)return;
+    x=x.charAt(0).toUpperCase()+x.slice(1);if(!/[.!?:)]$/.test(x))x+='.';
+    if(!out.some(o=>o.toLowerCase()===x.toLowerCase()))out.push(x)});return out}
+function fixTerms(x){return String(x||'').replace(/\b(adc|ac|a|jis|ubc)[\s-]?(\d+[a-z]?)\b/gi,(m,a,b)=>/^(adc|ac|a|jis)$/i.test(a)&&/\d/.test(b)?(a+b).toUpperCase():m).replace(/\bubc\b/gi,'UBC').replace(/\bpo\b/g,'PO')
+  .replace(/\b(si|fe|cu|mg|zn|mn|ni|ti|pb|sn)\b(?=\s*(?:\d|%|tinggi|rendah|harus|max|maks|min|dan|,|\.|;|$))/gi,m=>m.charAt(0).toUpperCase()+m.charAt(1).toLowerCase())
+  .replace(/\b(kadar|unsur|soal|dan)\s+(si|fe|cu|mg|zn|mn)\b/gi,(m,a,b)=>a+' '+b.charAt(0).toUpperCase()+b.charAt(1).toLowerCase())}
+function cap1(x){x=String(x||'').trim();return x?x.charAt(0).toUpperCase()+x.slice(1):''}
+function buildLearnReport(){const d=lrData(),r=d.r,tp=Object.keys(d.by);
+  const lst=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' dan '+a[a.length-1];
   let s=`*LAPORAN PEMBELAJARAN*\nNama: ${S.cfg.name||'-'}\nKepada: ${S.cfg.spv||'-'}\nPeriode: ${r.lbl} (${fmtD(r.from)} – ${fmtD(r.to)})\n\n`;
-  s+=`*1. Ringkasan*\n- Catatan belajar: ${d.N.length} (${d.days} hari belajar)\n`;
-  if(d.N.length)s+=`- Topik: ${Object.keys(d.by).map(k=>`${k} (${d.by[k].length})`).join(', ')}\n`;
-  if(d.avg)s+=`- Rata-rata pemahaman: ${fmtN(d.avg)} / 5\n`;
-  s+=`- Materi dasar produk: ${d.read}/${TOPICS.length} selesai\n`;
-  s+=`\n*2. Yang saya pelajari*\n`;
-  if(!d.N.length)s+='- Belum ada catatan di periode ini\n';
-  else{let i=0;Object.keys(d.by).forEach(k=>{s+=`\n_${k}_\n`;d.by[k].forEach(n=>{i++;s+=`${i}. [${fmtD(n.date)}] *${n.title}*\n   ${String(n.learned||'').replace(/\n+/g,'\n   ')}\n   Sumber: ${n.source||'-'}${+n.score?` · Pemahaman ${n.score}/5`:''}\n`})})}
-  s+=`\n*3. Penerapan di lapangan*\n`+(d.ap.length?d.ap.map(n=>`- ${n.title}: ${n.apply}`).join('\n'):'-')+'\n';
-  s+=`\n*4. Pertanyaan / perlu bimbingan*\n`+(d.q.length?d.q.map(n=>`- ${n.question} (${n.title})`).join('\n'):'-')+'\n';
-  if(d.weak.length)s+=`\n*5. Topik yang perlu diperdalam*\n`+d.weak.map(n=>`- ${n.title} (pemahaman ${n.score}/5)`).join('\n')+'\n';
-  s+=`\n*Rencana belajar berikutnya*\n${S.cfg.learnPlan||'-'}\n`;
+  s+=`*1. Ringkasan*\n`;
+  if(!d.N.length)s+='Belum ada catatan belajar pada periode ini.\n';
+  else{s+=`Selama periode ini saya mempelajari ${d.N.length} materi dalam ${d.days} hari belajar, dengan fokus pada ${lst(tp.map(k=>k.toLowerCase()))}.`;
+    if(d.avg)s+=` Rata-rata tingkat pemahaman saya ${fmtN(d.avg)} dari 5${d.avg>=4?', sebagian besar materi sudah saya pahami dengan baik':d.avg>=3?', sebagian materi masih perlu diperdalam':', masih banyak materi yang perlu saya perdalam'}.`;
+    s+=` Materi dasar produk yang sudah selesai: ${d.read} dari ${TOPICS.length}.\n`}
+  s+=`\n*2. Materi yang saya pelajari*\n`;
+  if(!d.N.length)s+='-\n';
+  else tp.forEach((k,ti)=>{s+=`\n*${String.fromCharCode(65+ti)}. ${k}*\n`;
+    d.by[k].forEach(n=>{s+=`\n_${cap1(n.title)}_ (${fmtD(n.date)}${n.source?', '+n.source.trim():''})\n`;tidyPts(n.learned).forEach(x=>{s+=`• ${x}\n`})})});
+  s+=`\n*3. Penerapan di lapangan*\n`+(d.ap.length?d.ap.map(n=>tidyPts(n.apply).map(x=>`• ${x}`).join('\n')).join('\n'):'-')+'\n';
+  s+=`\n*4. Pertanyaan / perlu bimbingan*\n`+(d.q.length?d.q.map(n=>tidyPts(n.question).map(x=>`• ${x.replace(/\.$/,'?').replace(/\?\?$/,'?')}`).join('\n')).join('\n'):'-')+'\n';
+  if(d.weak.length)s+=`\n*5. Materi yang perlu diperdalam*\n`+d.weak.map(n=>`• ${cap1(n.title)} (pemahaman ${n.score}/5)`).join('\n')+'\n';
+  s+=`\n*Rencana belajar berikutnya*\n`+(S.cfg.learnPlan?tidyPts(S.cfg.learnPlan).map(x=>`• ${x}`).join('\n'):'-')+'\n';
+  s+=`\nDemikian laporan pembelajaran saya. Mohon arahan dan masukan Bapak/Ibu.\n`;
   return s}
+function aiPrompt(){const d=lrData(),r=d.r;
+  const raw=d.N.map(n=>`### ${n.title} | ${n.topic||'-'} | ${n.date}${n.source?' | sumber: '+n.source:''}${+n.score?' | pemahaman '+n.score+'/5':''}\nYang dipelajari: ${n.learned||'-'}${n.apply?'\nRencana penerapan: '+n.apply:''}${n.question?'\nPertanyaan: '+n.question:''}`).join('\n\n');
+  return `Tolong susun LAPORAN PEMBELAJARAN untuk atasan saya dalam bahasa Indonesia yang baku, rapi, dan profesional, siap dikirim lewat WhatsApp (pakai *tebal* dan poin •).
+Konteks: saya ${S.cfg.name||'sales'}, sales baru PT Sumi Win Mukti (produsen ingot aluminium). Laporan untuk ${S.cfg.spv||'atasan'}, periode ${r.lbl} (${fmtD(r.from)} – ${fmtD(r.to)}).
+Aturan:
+- Gunakan HANYA informasi dari catatan di bawah. Jangan menambah fakta, angka, spesifikasi, atau nama yang tidak ada.
+- Perbaiki ejaan & tata bahasa, gabungkan poin yang sama, kelompokkan per topik.
+- Struktur: 1) Ringkasan singkat (2–3 kalimat), 2) Materi yang dipelajari per topik (poin-poin), 3) Penerapan di lapangan, 4) Pertanyaan / butuh bimbingan, 5) Rencana belajar berikutnya, lalu kalimat penutup sopan.
+- Kalau ada istilah teknis yang ragu, biarkan seperti di catatan.
+
+CATATAN SAYA:
+${raw||'(kosong)'}
+${S.cfg.learnPlan?'\nRencana belajar berikutnya: '+S.cfg.learnPlan:''}`}
 function rLrep(){const d=lrData();
   $('#v-lrep').innerHTML=`<div class="chips" style="margin-top:14px">${[['minggu','Minggu ini'],['bulan','Bulan ini'],['semua','Semua']].map(([k,n])=>`<button class="chip ${lrPeriod===k?'on':''}" data-lp="${k}">${n}</button>`).join('')}</div>
   <div class="kpis" style="margin-top:6px"><div class="kpi"><div class="l">Catatan</div><div class="v">${d.N.length}</div><div class="s">${d.days} hari belajar</div></div><div class="kpi"><div class="l">Rata-rata paham</div><div class="v">${d.avg?fmtN(d.avg):'–'}<span style="font-size:13px;color:var(--muted)"> /5</span></div><div class="s">${d.q.length} pertanyaan terbuka</div></div></div>
   ${d.N.length?`<div class="chart" style="margin-top:12px"><div class="cap">Catatan per topik</div>${hbars(Object.keys(d.by).map(k=>({l:k,v:d.by[k].length,c:tcol(k)})),'')}</div>`:''}
   <h2>🗓️ Rencana belajar berikutnya</h2>
   <div class="card"><div class="f"><label class="full">Akan dipelajari selanjutnya<textarea id="lpIn" placeholder="Contoh: spesifikasi resmi semua produk perusahaan, cara hitung harga franco, ikut kunjungan QC ke pelanggan velg…">${esc(S.cfg.learnPlan)}</textarea></label></div><div class="btns"><button class="btn sm n" id="saveLp">Simpan rencana</button></div></div>
-  <h2>✨ Laporan pembelajaran (rapi)</h2>
-  ${aiBox('lrep','Generate laporan rapi','Disusun hanya dari catatan belajar periode ini. Periksa dulu sebelum dikirim — hasil boleh diedit langsung.')}
-  <h2>📄 Versi otomatis (tanpa AI)</h2>
+  <h2>📄 Laporan pembelajaran</h2>
   <textarea class="rep" readonly>${esc(buildLearnReport())}</textarea>
   <div class="btns"><button class="btn p" id="cpLr">📋 Salin laporan</button><button class="btn n" data-meet="belajar">🎤 Presentasikan</button></div>
+  <div class="btns"><button class="btn" id="aiLr" style="flex:1">✨ Rapikan dengan AI (Claude)</button></div>
+  <div class="tip">Tombol ✨ menyalin catatanmu beserta instruksi, lalu membuka Claude. Tempel (Ctrl+V / tekan lama → Tempel) di kotak chat, kirim, lalu salin hasilnya.</div>
   ${!d.N.length?'<div class="tip">Belum ada catatan di periode ini — tulis dulu di <b>Catatan saya</b>.</div>':''}`}
 function learnSlides(){const d=lrData(),out=[],nm=esc(S.cfg.name||'Sales'),spv=S.cfg.spv?' · untuk '+esc(S.cfg.spv):'';
   out.push(cover('Laporan<br>Pembelajaran','Pengembangan diri sales',`${nm}${spv}<br>${d.r.lbl} · ${fmtD(d.r.from)} – ${fmtD(d.r.to)}`));
@@ -1652,99 +1843,8 @@ function learnSlides(){const d=lrData(),out=[],nm=esc(S.cfg.name||'Sales'),spv=S
   setInterval(()=>{const L=$('#login');if(L.hidden)return;k=(k+1)%N.length;
     L.querySelectorAll('.lbs').forEach((el,i)=>el.classList.toggle('on',i===k));L.querySelectorAll('.ldots i').forEach((el,i)=>el.classList.toggle('on',i===k));
     const n=$('#lcapN');n.style.opacity=0;setTimeout(()=>{n.textContent=N[k];n.style.opacity=1},500)},6500)})();
-/* =================== GENERATE AI (laporan & notulen) =================== */
-(function(){let n=0;const t=setInterval(()=>{n++;
-  if(window.claude&&typeof window.claude.use==='function'){clearInterval(t);
-    window.claude.use('sample').then(s=>{AI=s||null;if(AI&&(view==='rep'||view==='lrep'))render()}).catch(()=>{})}
-  else if(n>20)clearInterval(t)},500)})();
-const AI_FMT=`FORMAT OUTPUT (wajib):
-- Teks polos siap tempel di WhatsApp. Tebal pakai *satu bintang* (contoh: *Judul*), poin pakai "• ". Sub-poin pakai "  – ".
-- JANGAN pakai markdown lain: tanpa #, tanpa **, tanpa tabel, tanpa blok kode.
-- Langsung mulai dari isi laporan, tanpa kalimat pembuka seperti "Berikut laporannya".`;
-function aiCo(){return S.cfg.company||'PT Sumi Win Mukti'}
-function aiNoteTxt(n){return `### ${n.title} | ${n.topic||'Lainnya'} | ${n.date} | sumber: ${n.source||'-'}${+n.score?` | pemahaman ${n.score}/5`:''}
-Yang dipelajari: ${n.learned||'-'}${n.apply?`\nRencana penerapan: ${n.apply}`:''}${n.question?`\nPertanyaan: ${n.question}`:''}`}
-function aiLearnPrompt(){const d=lrData(),r=d.r;
-  return `Tolong susun LAPORAN PEMBELAJARAN untuk atasan dalam bahasa Indonesia yang baku, rapi, dan profesional, siap dikirim lewat WhatsApp.
-Konteks: saya ${S.cfg.name||'(nama sales)'}, sales baru ${aiCo()} (produsen ingot aluminium). Laporan untuk ${S.cfg.spv||'SPV Sales'}, periode ${r.lbl} (${fmtD(r.from)} – ${fmtD(r.to)}).
-Aturan:
-- Gunakan HANYA informasi dari catatan di bawah. Jangan menambah fakta, angka, spesifikasi, atau nama yang tidak ada.
-- Perbaiki ejaan & tata bahasa, gabungkan poin yang sama, kelompokkan per topik.
-- Kalau ada istilah teknis, kode produk, atau nama mesin yang ragu, biarkan persis seperti di catatan.
-- Struktur: header (judul, Kepada, Dari, Perusahaan, Periode), lalu *1. Ringkasan* (2–3 kalimat), *2. Materi yang Dipelajari* (per topik, poin-poin), *3. Penerapan di Lapangan*, *4. Pertanyaan / Mohon Bimbingan*, *5. Rencana Belajar Berikutnya*, lalu kalimat penutup sopan dan tanda tangan (nama, jabatan Sales, perusahaan).
-- Bagian rencana belajar: ambil dari "Rencana belajar berikutnya" dan rencana penerapan di catatan; jangan mengarang.
-${AI_FMT}
-
-CATATAN SAYA:
-${d.N.map(aiNoteTxt).join('\n\n')||'(tidak ada catatan)'}
-
-Rencana belajar berikutnya (dari saya): ${S.cfg.learnPlan||'-'}`}
-function buildReportFor(p){const o=repPeriod;repPeriod=p;try{return buildReport()}finally{repPeriod=o}}
-function mtgGet(d){return ((S.cfg.mtg||{})[d])||''}
-function mtgSave(d,txt){const m=Object.assign({},S.cfg.mtg||{});if(txt.trim())m[d]=txt;else delete m[d];
-  const keys=Object.keys(m).sort().reverse();keys.slice(14).forEach(k=>delete m[k]);
-  delete mtgDraft[d];putCfg(Object.assign({},S.cfg,{mtg:m}))}
-function aiMeetPrompt(d){const raw=mtgDraft[d]!==undefined?mtgDraft[d]:mtgGet(d);
-  return `Tolong susun NOTULEN / CATATAN DAILY MEETING SALES dalam bahasa Indonesia yang baku, rapi, dan profesional, siap dikirim lewat WhatsApp ke atasan.
-Konteks: saya ${S.cfg.name||'(nama sales)'}, sales ${aiCo()} (produsen ingot aluminium). Daily meeting dengan ${S.cfg.spv||'SPV Sales'} pada ${fmtD(d,true)}.
-Aturan:
-- Gunakan HANYA informasi dari dua sumber di bawah. Jangan menambah fakta, angka, nama perusahaan, tanggal, atau tugas yang tidak ada.
-- Perbaiki ejaan & tata bahasa, gabungkan poin yang sama. Nama perusahaan, kode produk, dan istilah teknis biarkan persis seperti sumbernya.
-- Bagian yang datanya kosong tulis "–" saja, jangan dikarang.
-- Struktur: header (*NOTULEN DAILY MEETING SALES*, Hari/Tanggal, Peserta: saya & atasan), lalu *1. Laporan Aktivitas* (ringkas dari data aplikasi), *2. Pembahasan & Arahan Atasan* (dari catatan rapat), *3. Tindak Lanjut / Tugas* (apa – siapa – kapan, bila disebut), *4. Rencana Follow-up*, *5. Kendala / Butuh Bantuan*, lalu penutup singkat yang sopan dan nama saya.
-${AI_FMT}
-
-SUMBER A — CATATAN RAPAT SAYA (mentah):
-${raw.trim()||'(kosong)'}
-
-SUMBER B — DATA AKTIVITAS DARI APLIKASI (${fmtD(d)}):
-${buildReportFor('hari')}`}
-function aiRepPrompt(){return `Tolong rapikan LAPORAN SALES berikut menjadi laporan untuk atasan dalam bahasa Indonesia yang baku, rapi, dan profesional, siap dikirim lewat WhatsApp.
-Aturan:
-- Gunakan HANYA informasi dari laporan di bawah. Jangan menambah fakta, angka, nama perusahaan, harga, atau tanggal.
-- Pertahankan semua angka dan nama persis. Perbaiki tata bahasa, gabungkan yang sama, buat kalimat hasil kunjungan lebih jelas.
-- Awali dengan ringkasan 2 kalimat, pertahankan urutan bagian, tutup dengan kalimat sopan dan nama ${S.cfg.name||'saya'}.
-- Bagian kosong tulis "–", jangan dikarang.
-${AI_FMT}
-
-LAPORAN MENTAH:
-${buildReportFor(repPeriod)}`}
-function aiBox(key,label,hint){
-  if(!AI)return `<div class="tip">✨ Generate otomatis (AI) aktif saat Sales Hub dibuka dari link artifact Claude.</div>`;
-  const o=aiOut[key],b=aiBusy[key];
-  return `<div class="btns"><button class="btn p" data-aigen="${key}" ${b?'disabled':''}>${b?'⏳ Sedang menyusun…':o?'🔄 Generate ulang':'✨ '+label}</button>${b?`<button class="btn sm" data-aistop="${key}">Stop</button>`:''}</div>
-  ${o||b?`<textarea class="rep" id="ai-${key}" style="min-height:360px;font-family:inherit;font-size:13.5px">${esc(o||'')}</textarea>
-  <div class="btns"><button class="btn n" data-aicp="${key}" style="flex:1">📋 Salin hasil (untuk WhatsApp)</button></div>
-  <div class="tip">${hint||'Periksa dulu sebelum dikirim. Hasil boleh diedit langsung di kotak di atas.'}</div>`:''}`}
-async function aiGen(key){if(!AI||aiBusy[key])return;
-  const p=key==='lrep'?aiLearnPrompt():key==='mtg'?aiMeetPrompt(TODAY()):aiRepPrompt();
-  if(key==='lrep'&&!lrData().N.length){toast('Belum ada catatan belajar di periode ini');return}
-  if(key==='mtg'&&mtgDraft[TODAY()]!==undefined)mtgSave(TODAY(),mtgDraft[TODAY()]);
-  aiBusy[key]=true;aiOut[key]='';aiCtl[key]=new AbortController();render();
-  try{const r=await AI(p,{modelTier:'default',cache:false,signal:aiCtl[key].signal,
-      onText:({text})=>{aiOut[key]=text;const el=$('#ai-'+key);if(el)el.value=text}});
-    aiOut[key]=(r.text||aiOut[key]||'').replace(/^```[a-z]*\n?|```\s*$/g,'').trim();toast('Selesai disusun ✓')}
-  catch(e){if(e&&e.code==='not_granted'){AI=null;toast('Akses AI tidak diizinkan')}
-    else if(e&&e.code==='rate_limited')toast('Terlalu sering — coba lagi sebentar lagi');
-    else if(!(e&&e.name==='AbortError'))toast('Gagal generate: '+((e&&e.message)||'coba lagi'));
-    if(e&&e.text)aiOut[key]=e.text}
-  aiBusy[key]=false;render()}
-document.addEventListener('click',e=>{const t=e.target.closest('[data-aigen],[data-aistop],[data-aicp],#mtgSave');if(!t)return;
-  if(t.dataset.aigen)return aiGen(t.dataset.aigen);
-  if(t.dataset.aistop){try{aiCtl[t.dataset.aistop].abort()}catch(x){}return}
-  if(t.dataset.aicp){const el=$('#ai-'+t.dataset.aicp);return copy(el?el.value:aiOut[t.dataset.aicp]||'')}
-  if(t.id==='mtgSave'){mtgSave(TODAY(),$('#mtgIn').value);toast('Catatan meeting disimpan ✓')}});
-document.addEventListener('input',e=>{const id=e.target.id||'';
-  if(id==='mtgIn')mtgDraft[TODAY()]=e.target.value;
-  else if(id.startsWith('ai-'))aiOut[id.slice(3)]=e.target.value});
-function mtgCard(){const d=TODAY(),v=mtgDraft[d]!==undefined?mtgDraft[d]:mtgGet(d);
-  return `<h2>🗒️ Catatan daily meeting</h2>
-  <div class="card"><div class="tip" style="margin-top:0">${fmtD(d,true)} — tulis cepat saja poin yang dibahas, arahan atasan, dan tugas. Tidak perlu rapi.</div>
-  <div class="f"><label class="full">Catatan rapat<textarea id="mtgIn" style="min-height:130px" placeholder="Contoh:&#10;- spv minta fokus prospek velg area cikarang&#10;- PT X minta sampel ADC 12, kirim jumat&#10;- besok visit bareng QC">${esc(v)}</textarea></label></div>
-  <div class="btns"><button class="btn sm n" id="mtgSave">Simpan catatan</button></div>
-  ${aiBox('mtg','Generate notulen daily meeting','Notulen disusun dari catatan rapat di atas + aktivitas hari ini di aplikasi. Periksa dulu sebelum dikirim.')}</div>`}
 /* =================== PRESENTASI KLIEN (company profile) =================== */
-let DECK=null,deckLoading=false,deckSrvMeta=null,deckErr='',deckTried=false;
+let dkSel='',DECK=null,deckLoading=false,deckSrvMeta=null,deckErr='',deckTried=false;
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('shub',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
 async function idbGet(k){try{const d=await idb();return await new Promise(r=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}catch(e){return null}}
 async function idbSet(k,v){try{const d=await idb();await new Promise(r=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=r;t.onerror=r})}catch(e){}}
@@ -1805,12 +1905,22 @@ function rPresent(){
     <div class="btns" style="flex-wrap:wrap"><label class="btn sm p" style="cursor:pointer">📂 File presentasi (.json)<input type="file" id="dkJson" accept=".json,.txt,application/json,text/plain" hidden></label><label class="btn sm n" style="cursor:pointer">🖼️ Gambar slide<input type="file" id="dkImgs" accept="image/*" multiple hidden></label>${DECK?'<button class="btn sm d" id="dkDel">Hapus</button>':''}</div></div>`;
   if(!DECK){el.innerHTML=`<div class="card" style="margin-top:14px;text-align:center;padding:22px 16px"><div style="font-size:38px">🎤</div><div style="font-weight:800;font-size:16px;margin-top:6px">Belum ada materi presentasi</div><div class="tip">Upload company profile sekali, lalu bisa dipresentasikan ke klien dari HP/laptop mana pun.</div>${deckErr?`<div class="tip" style="color:var(--red)">${esc(deckErr)}</div>`:''}</div>${up}`;return}
   el.innerHTML=`<div class="card" style="margin-top:14px"><div style="font-weight:800;font-size:16px">${esc(DECK.title)}</div><div class="tip" style="margin-top:2px">${DECK.slides.length} slide · tampil layar penuh, geser untuk pindah slide</div>
-    <div class="f" style="margin-top:10px"><label class="full">Presentasikan untuk klien (opsional)<select id="dkLead"><option value="">— tanpa nama klien —</option>${L.map(l=>`<option value="${esc(l.id)}">${esc(l.company)}</option>`).join('')}</select></label></div>
+    <div class="f" style="margin-top:10px"><label class="full">Presentasikan untuk klien (opsional)<select id="dkLead"><option value="">— tanpa nama klien —</option><option value="__new">➕ Klien baru…</option>${L.map(l=>`<option value="${esc(l.id)}" ${l.id===dkSel?'selected':''}>${esc(l.company)}</option>`).join('')}</select></label></div>
     <div class="btns"><button class="btn p" id="dkStart" style="flex:1">▶ Mulai presentasi</button></div>
     <div class="tip">Dengan memilih klien, slide pembuka menampilkan nama klien & slide penutup berisi kontak kamu. Setelah selesai, presentasi bisa langsung dicatat sebagai aktivitas.</div></div>
   <h2>🖼️ Slide <span class="cnt">${DECK.slides.length}</span></h2>
   <div class="dkgrid">${DECK.slides.map((s,i)=>`<button class="dkth" data-dks="${i}"><img src="${s.img}" alt="" loading="lazy"><span>${i+1}. ${esc(s.t||'')}</span></button>`).join('')}</div>
   ${up}`}
+function quickClient(){openSheet(`<h3>Klien baru<button class="x" data-close>✕</button></h3><div class="tip" style="margin-top:-8px">Disimpan sebagai lead baru, lalu presentasi langsung dimulai.</div>
+  <form id="qcf" class="f" style="margin-top:12px" onsubmit="return false"><label class="full">Nama perusahaan *<input name="company" placeholder="PT …"></label>
+  <label>Nama PIC<input name="pic"></label><label>Jabatan<input name="role" placeholder="Purchasing…"></label>
+  <label>No. HP / WA<input name="phone" inputmode="tel"></label><label>Kota<input name="city" list="dl-city"></label></form>
+  <div class="btns"><button class="btn" id="qcSave">Simpan saja</button><button class="btn p" id="qcGo" style="flex:1">Simpan & mulai presentasi</button></div>`);
+  setTimeout(()=>{const i=$('#qcf input[name=company]');if(i)i.focus()},100);
+  const save=()=>{const d=Object.fromEntries(new FormData($('#qcf')).entries());if(!d.company.trim()){toast('Isi nama perusahaan');return null}
+    const o={id:uid('L'),company:d.company.trim(),pic:d.pic.trim(),role:d.role.trim(),phone:d.phone.trim(),city:d.city.trim(),stage:'baru',prio:'warm',source:'Kunjungan langsung',created:TODAY(),updated:TODAY()};
+    if(o.pic)o.contacts=[{id:uid('c'),name:o.pic,role:o.role,phone:o.phone,dmu:'purchasing'}];dkSel=o.id;try{document.activeElement.blur()}catch(e){}putLead(o);closeSheet();toast('Klien tersimpan ✓');return o};
+  $('#qcSave').onclick=()=>{save()};$('#qcGo').onclick=()=>{const o=save();if(o)startDeck(o.id)}}
 function startDeck(leadId,at){if(!DECK){go('present');return}meet.lead=leadId||'';meet.at=at;openMeet('profil')}
 function deckSlides(){const out=[],l=meet.lead&&S.leads[meet.lead],c=S.cfg,nm=(SH&&SH.user)||c.name||'';
   const bg=DECK.slides[0]?`background-image:linear-gradient(180deg,rgba(9,32,19,.82),rgba(9,32,19,.96)),url(${DECK.slides[0].img})`:'';
