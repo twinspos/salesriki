@@ -271,6 +271,21 @@ nav.tabs{display:none}
 .wrap{padding-bottom:90px!important}
 .fab{bottom:22px!important}
 body.drwOn{overflow:hidden}
+.hdrMenu,.hdrTitle{display:none}
+@media (min-width:1024px){
+ header{padding:14px 28px}
+ header .in{max-width:none!important;margin:0}
+ .hdrMenu{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;border:0;background:#ffffff1f;color:#fff;cursor:pointer;flex:none}
+ .hdrMenu:hover{background:#ffffff33}
+ .hdrTitle{display:block;flex:1;min-width:0}
+ .hdrTitle small{display:block;font-size:12px;opacity:.65;font-weight:600;letter-spacing:.3px}
+ .hdrTitle b{display:block;font-size:20px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ header .brandT{display:none}
+ body.pin #hdrLogo{display:none}
+ .subnav{display:none}
+ .wrap{padding-top:18px!important}
+ body.pin .drwH{padding:14px 16px;min-height:68px}
+}
 @media (min-width:1024px){
  body.pin{padding-left:264px}
  body.pin .drw{visibility:visible;inset:0 auto 0 0;width:264px;z-index:30}
@@ -278,15 +293,17 @@ body.drwOn{overflow:hidden}
  body.pin .drwP{transform:none;width:264px;box-shadow:none;border-right:1px solid var(--line)}
  body.pin #drwX{display:none}
  body.pin.drwOn{overflow:auto}
- body.pin header .in,body.pin .subnav .in,body.pin .wrap{max-width:980px}
+ body.pin .wrap,.wrap{max-width:1040px}
  body.pin .subnav{top:0}
 }
 </style>
 </head>
 <body>
 <header><div class="in">
+  <button class="hdrMenu" id="hdrMenu" aria-label="Sembunyikan/tampilkan menu"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <div class="logo" id="hdrLogo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1b2a4a" stroke-width="2" stroke-linejoin="round"><path d="M3 17l3-7h12l3 7z"/><path d="M6 10l2-4h8l2 4"/></svg></div>
-  <div><h1>Sales Hub</h1><div class="sub">Ingot Aluminium</div></div>
+  <div class="brandT"><h1>Sales Hub</h1><div class="sub">Ingot Aluminium</div></div>
+  <div class="hdrTitle" id="hdrTitle"></div>
   <div class="sync" id="sync">Memuat…</div>
   <button class="acct" id="acctBtn" hidden aria-label="Akun"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
 </div></header>
@@ -1292,7 +1309,7 @@ const MOD_IC=JSON.parse('{"kegiatan": "<svg viewBox=\\"0 0 24 24\\" fill=\\"none
 let grpOpen=(()=>{try{return JSON.parse(localStorage.getItem('shub_grp')||'null')}catch(e){return null}})();
 function saveGrp(){try{localStorage.setItem('shub_grp',JSON.stringify(grpOpen))}catch(e){}}
 function drawDrawer(){
-  const m=modOf(view);if(!grpOpen){grpOpen={};grpOpen[m]=true}
+  const m=modOf(view);if(!grpOpen){grpOpen={};grpOpen[m]=true}if(pinned&&wide&&pinned()&&!grpOpen[m]){grpOpen[m]=true;saveGrp()}
   $('#drwBody').innerHTML=Object.keys(MODS).map(k=>`<div class="grp ${grpOpen[k]?'open':''}"><button class="grpH ${k===m?'cur':''}" data-grp="${k}" aria-expanded="${!!grpOpen[k]}">${MOD_IC[k]}${MODS[k].n}<span class="car">▾</span></button>
     <div class="grpB">${MODS[k].v.map(([v,n])=>`<button class="it ${v===view?'on':''}" data-v="${v}">${n}</button>`).join('')}</div></div>`).join('');
   const lg=$('#hdrLogo'),dl=$('#drwLogo');if(lg&&dl)dl.innerHTML=lg.innerHTML;
@@ -1308,12 +1325,12 @@ function closeDrawer(){if(pinned()){drawDrawer();return}$('#drw').classList.remo
 function go(v){
   if(v==='meet'){closeDrawer();openMeet('harian');return}
   view=v;const m=modOf(v);lastView[m]=v;closeDrawer();
-  const nm=(MODS[m].v.find(x=>x[0]===v)||[,''])[1];$('#crumb').innerHTML=`${esc(MODS[m].n)} › <b>${esc(nm)}</b>`;
+  const nm=(MODS[m].v.find(x=>x[0]===v)||[,''])[1];$('#crumb').innerHTML=`${esc(MODS[m].n)} › <b>${esc(nm)}</b>`;$('#hdrTitle').innerHTML=`<small>${esc(MODS[m].n.toUpperCase())}</small><b>${esc(nm)}</b>`;
   document.querySelectorAll('.wrap>section').forEach(s=>s.hidden=s.id!=='v-'+view);
   $('#fab').style.display=['home','leads','pipe','act','kb','goals','journal','grades'].includes(v)?'':'none';
   window.scrollTo(0,0);render();
 }
-$('#menuBtn').onclick=toggleMenu;try{wide.addEventListener('change',applyPin)}catch(e){wide.addListener(applyPin)}applyPin();$('#drwX').onclick=closeDrawer;$('#drwBg').onclick=closeDrawer;
+$('#menuBtn').onclick=toggleMenu;$('#hdrMenu').onclick=toggleMenu;try{wide.addEventListener('change',applyPin)}catch(e){wide.addListener(applyPin)}applyPin();$('#drwX').onclick=closeDrawer;$('#drwBg').onclick=closeDrawer;
 $('#drwBody').addEventListener('click',e=>{const h=e.target.closest('[data-grp]');if(!h)return;e.stopPropagation();const k=h.dataset.grp;grpOpen=grpOpen||{};grpOpen[k]=!grpOpen[k];saveGrp();drawDrawer()});
 $('#drwAll').onclick=()=>{grpOpen={};Object.keys(MODS).forEach(k=>grpOpen[k]=true);saveGrp();drawDrawer()};
 $('#drwNone').onclick=()=>{grpOpen={};saveGrp();drawDrawer()};
