@@ -1259,6 +1259,7 @@ document.addEventListener('click',e=>{
   if(t.id==='addNote')return noteForm();
   if(t.id==='saveLp'){putCfg(Object.assign({},S.cfg,{learnPlan:$('#lpIn').value}));toast('Rencana disimpan ✓');return}
   if(t.id==='cpLr')return copy(buildLearnReport());
+  if(t.id==='aiLr'){if(!lrData().N.length)return toast('Belum ada catatan di periode ini');copy(aiPrompt());setTimeout(()=>window.open('https://claude.ai/new','_blank','noopener'),400);return}
   if(t.dataset.wn){const tp=TOPICS.find(x=>x.id===t.dataset.wn);return noteForm(null,{topic:T2N[tp.id]||'Lainnya',title:tp.t,source:'Materi Sales Hub'})}
   if(t.dataset.lr){const r=Object.assign({},L_().read||{});r[t.dataset.lr]=TODAY();setLearn({read:r});toast('Materi selesai ✓');return openTopic(t.dataset.lr)}
   if(t.dataset.gf!==undefined){gFam=t.dataset.gf;return render()}
@@ -1774,20 +1775,47 @@ function lrData(){const r=lrRange(),N=notesArr().filter(n=>n.date>=r.from&&n.dat
   const sc=N.filter(n=>+n.score),avg=sc.length?sc.reduce((a,n)=>a+(+n.score),0)/sc.length:0;
   const L=L_();return {r,N,by,avg,days:new Set(N.map(n=>n.date)).size,read:TOPICS.filter(t=>(L.read||{})[t.id]).length,best:(L.quiz||{}).best,
     q:N.filter(n=>n.question),ap:N.filter(n=>n.apply),weak:N.filter(n=>+n.score&&+n.score<=2)}}
-function buildLearnReport(){const d=lrData(),r=d.r;
+function tidyPts(t){
+  const out=[];String(t||'').replace(/\r/g,'').split(/\n+|(?<=[.!?;])\s+/).forEach(x=>{
+    x=fixTerms(x);
+    x=x.replace(/^\s*(?:[-•*·>]+|\d+[.)])\s*/,'').replace(/[;,]\s*$/,'').replace(/\s+/g,' ').trim();if(x.length<2)return;
+    x=x.charAt(0).toUpperCase()+x.slice(1);if(!/[.!?:)]$/.test(x))x+='.';
+    if(!out.some(o=>o.toLowerCase()===x.toLowerCase()))out.push(x)});return out}
+function fixTerms(x){return String(x||'').replace(/\b(adc|ac|a|jis|ubc)[\s-]?(\d+[a-z]?)\b/gi,(m,a,b)=>/^(adc|ac|a|jis)$/i.test(a)&&/\d/.test(b)?(a+b).toUpperCase():m).replace(/\bubc\b/gi,'UBC').replace(/\bpo\b/g,'PO')
+  .replace(/\b(si|fe|cu|mg|zn|mn|ni|ti|pb|sn)\b(?=\s*(?:\d|%|tinggi|rendah|harus|max|maks|min|dan|,|\.|;|$))/gi,m=>m.charAt(0).toUpperCase()+m.charAt(1).toLowerCase())
+  .replace(/\b(kadar|unsur|soal|dan)\s+(si|fe|cu|mg|zn|mn)\b/gi,(m,a,b)=>a+' '+b.charAt(0).toUpperCase()+b.charAt(1).toLowerCase())}
+function cap1(x){x=String(x||'').trim();return x?x.charAt(0).toUpperCase()+x.slice(1):''}
+function buildLearnReport(){const d=lrData(),r=d.r,tp=Object.keys(d.by);
+  const lst=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' dan '+a[a.length-1];
   let s=`*LAPORAN PEMBELAJARAN*\nNama: ${S.cfg.name||'-'}\nKepada: ${S.cfg.spv||'-'}\nPeriode: ${r.lbl} (${fmtD(r.from)} – ${fmtD(r.to)})\n\n`;
-  s+=`*1. Ringkasan*\n- Catatan belajar: ${d.N.length} (${d.days} hari belajar)\n`;
-  if(d.N.length)s+=`- Topik: ${Object.keys(d.by).map(k=>`${k} (${d.by[k].length})`).join(', ')}\n`;
-  if(d.avg)s+=`- Rata-rata pemahaman: ${fmtN(d.avg)} / 5\n`;
-  s+=`- Materi dasar produk: ${d.read}/${TOPICS.length} selesai\n`;
-  s+=`\n*2. Yang saya pelajari*\n`;
-  if(!d.N.length)s+='- Belum ada catatan di periode ini\n';
-  else{let i=0;Object.keys(d.by).forEach(k=>{s+=`\n_${k}_\n`;d.by[k].forEach(n=>{i++;s+=`${i}. [${fmtD(n.date)}] *${n.title}*\n   ${String(n.learned||'').replace(/\n+/g,'\n   ')}\n   Sumber: ${n.source||'-'}${+n.score?` · Pemahaman ${n.score}/5`:''}\n`})})}
-  s+=`\n*3. Penerapan di lapangan*\n`+(d.ap.length?d.ap.map(n=>`- ${n.title}: ${n.apply}`).join('\n'):'-')+'\n';
-  s+=`\n*4. Pertanyaan / perlu bimbingan*\n`+(d.q.length?d.q.map(n=>`- ${n.question} (${n.title})`).join('\n'):'-')+'\n';
-  if(d.weak.length)s+=`\n*5. Topik yang perlu diperdalam*\n`+d.weak.map(n=>`- ${n.title} (pemahaman ${n.score}/5)`).join('\n')+'\n';
-  s+=`\n*Rencana belajar berikutnya*\n${S.cfg.learnPlan||'-'}\n`;
+  s+=`*1. Ringkasan*\n`;
+  if(!d.N.length)s+='Belum ada catatan belajar pada periode ini.\n';
+  else{s+=`Selama periode ini saya mempelajari ${d.N.length} materi dalam ${d.days} hari belajar, dengan fokus pada ${lst(tp.map(k=>k.toLowerCase()))}.`;
+    if(d.avg)s+=` Rata-rata tingkat pemahaman saya ${fmtN(d.avg)} dari 5${d.avg>=4?', sebagian besar materi sudah saya pahami dengan baik':d.avg>=3?', sebagian materi masih perlu diperdalam':', masih banyak materi yang perlu saya perdalam'}.`;
+    s+=` Materi dasar produk yang sudah selesai: ${d.read} dari ${TOPICS.length}.\n`}
+  s+=`\n*2. Materi yang saya pelajari*\n`;
+  if(!d.N.length)s+='-\n';
+  else tp.forEach((k,ti)=>{s+=`\n*${String.fromCharCode(65+ti)}. ${k}*\n`;
+    d.by[k].forEach(n=>{s+=`\n_${cap1(n.title)}_ (${fmtD(n.date)}${n.source?', '+n.source.trim():''})\n`;tidyPts(n.learned).forEach(x=>{s+=`• ${x}\n`})})});
+  s+=`\n*3. Penerapan di lapangan*\n`+(d.ap.length?d.ap.map(n=>tidyPts(n.apply).map(x=>`• ${x}`).join('\n')).join('\n'):'-')+'\n';
+  s+=`\n*4. Pertanyaan / perlu bimbingan*\n`+(d.q.length?d.q.map(n=>tidyPts(n.question).map(x=>`• ${x.replace(/\.$/,'?').replace(/\?\?$/,'?')}`).join('\n')).join('\n'):'-')+'\n';
+  if(d.weak.length)s+=`\n*5. Materi yang perlu diperdalam*\n`+d.weak.map(n=>`• ${cap1(n.title)} (pemahaman ${n.score}/5)`).join('\n')+'\n';
+  s+=`\n*Rencana belajar berikutnya*\n`+(S.cfg.learnPlan?tidyPts(S.cfg.learnPlan).map(x=>`• ${x}`).join('\n'):'-')+'\n';
+  s+=`\nDemikian laporan pembelajaran saya. Mohon arahan dan masukan Bapak/Ibu.\n`;
   return s}
+function aiPrompt(){const d=lrData(),r=d.r;
+  const raw=d.N.map(n=>`### ${n.title} | ${n.topic||'-'} | ${n.date}${n.source?' | sumber: '+n.source:''}${+n.score?' | pemahaman '+n.score+'/5':''}\nYang dipelajari: ${n.learned||'-'}${n.apply?'\nRencana penerapan: '+n.apply:''}${n.question?'\nPertanyaan: '+n.question:''}`).join('\n\n');
+  return `Tolong susun LAPORAN PEMBELAJARAN untuk atasan saya dalam bahasa Indonesia yang baku, rapi, dan profesional, siap dikirim lewat WhatsApp (pakai *tebal* dan poin •).
+Konteks: saya ${S.cfg.name||'sales'}, sales baru PT Sumi Win Mukti (produsen ingot aluminium). Laporan untuk ${S.cfg.spv||'atasan'}, periode ${r.lbl} (${fmtD(r.from)} – ${fmtD(r.to)}).
+Aturan:
+- Gunakan HANYA informasi dari catatan di bawah. Jangan menambah fakta, angka, spesifikasi, atau nama yang tidak ada.
+- Perbaiki ejaan & tata bahasa, gabungkan poin yang sama, kelompokkan per topik.
+- Struktur: 1) Ringkasan singkat (2–3 kalimat), 2) Materi yang dipelajari per topik (poin-poin), 3) Penerapan di lapangan, 4) Pertanyaan / butuh bimbingan, 5) Rencana belajar berikutnya, lalu kalimat penutup sopan.
+- Kalau ada istilah teknis yang ragu, biarkan seperti di catatan.
+
+CATATAN SAYA:
+${raw||'(kosong)'}
+${S.cfg.learnPlan?'\nRencana belajar berikutnya: '+S.cfg.learnPlan:''}`}
 function rLrep(){const d=lrData();
   $('#v-lrep').innerHTML=`<div class="chips" style="margin-top:14px">${[['minggu','Minggu ini'],['bulan','Bulan ini'],['semua','Semua']].map(([k,n])=>`<button class="chip ${lrPeriod===k?'on':''}" data-lp="${k}">${n}</button>`).join('')}</div>
   <div class="kpis" style="margin-top:6px"><div class="kpi"><div class="l">Catatan</div><div class="v">${d.N.length}</div><div class="s">${d.days} hari belajar</div></div><div class="kpi"><div class="l">Rata-rata paham</div><div class="v">${d.avg?fmtN(d.avg):'–'}<span style="font-size:13px;color:var(--muted)"> /5</span></div><div class="s">${d.q.length} pertanyaan terbuka</div></div></div>
@@ -1797,6 +1825,8 @@ function rLrep(){const d=lrData();
   <h2>📄 Laporan pembelajaran</h2>
   <textarea class="rep" readonly>${esc(buildLearnReport())}</textarea>
   <div class="btns"><button class="btn p" id="cpLr">📋 Salin laporan</button><button class="btn n" data-meet="belajar">🎤 Presentasikan</button></div>
+  <div class="btns"><button class="btn" id="aiLr" style="flex:1">✨ Rapikan dengan AI (Claude)</button></div>
+  <div class="tip">Tombol ✨ menyalin catatanmu beserta instruksi, lalu membuka Claude. Tempel (Ctrl+V / tekan lama → Tempel) di kotak chat, kirim, lalu salin hasilnya.</div>
   ${!d.N.length?'<div class="tip">Belum ada catatan di periode ini — tulis dulu di <b>Catatan saya</b>.</div>':''}`}
 function learnSlides(){const d=lrData(),out=[],nm=esc(S.cfg.name||'Sales'),spv=S.cfg.spv?' · untuk '+esc(S.cfg.spv):'';
   out.push(cover('Laporan<br>Pembelajaran','Pengembangan diri sales',`${nm}${spv}<br>${d.r.lbl} · ${fmtD(d.r.from)} – ${fmtD(d.r.to)}`));
