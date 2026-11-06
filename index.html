@@ -476,7 +476,7 @@ async function pullSheet(silent){if(mode!=='sheet'||flushing||!sessionOK())retur
     let P2=Object.assign({},S.prods);if(Array.isArray(j.prods)){P2={};j.prods.forEach(x=>{P2[x.id]=x})}else oldGs=true;
     applyOutbox(L,A,N2,P2);
     S.leads=L;S.acts=A;S.notes=N2;S.prods=P2;if(j.cfg&&!outbox.some(o=>o.action==='saveCfg'))S.cfg=Object.assign({},DEFCFG,j.cfg);
-    if('deck' in j){deckSrvMeta=j.deck||null;if(deckSrvMeta&&(!DECK||DECK.ver!==deckSrvMeta.ver))deckTried=false}
+    if('decks' in j||'deck' in j){deckSrvMeta=j.decks||(j.deck&&j.deck.ver?[{id:'legacy',ver:j.deck.ver,title:j.deck.title,n:j.deck.n}]:[]);const sig=L=>(L||[]).map(d=>d.id+d.ver).join();if(sig(deckSrvMeta)!==sig(deckList)){deckList=deckSrvMeta.slice();deckTried=false;if(view==='present')render()}}
     if(typeof j.photo==='string'){const leg=S.cfg.photo;if(!j.photo&&leg){api({action:'setPhoto',photo:leg}).catch(()=>{});lsPh(leg)}else lsPh(j.photo);delete S.cfg.photo}
     saveLocal();render();if(!outbox.length){setSync('✓ Tersinkron Sheet');if(!oldGs)hideWarn()}
     autoMail()}
@@ -532,7 +532,7 @@ function logout(){const pend=outbox.length;
   confirmBox((pend?`<b style="color:var(--red)">${pend} perubahan belum terkirim ke Sheet dan akan hilang.</b><br>`:'')+'Keluar dari Sales Hub di perangkat ini?',async()=>{
     closeSheet();try{await api({action:'logout'})}catch(e){}
     SH={url:SH.url,synced:false};saveSH();outbox=[];saveOutbox();try{localStorage.removeItem(LK)}catch(e){}
-    S.leads={};S.acts={};S.notes={};S.prods={};S.cfg=Object.assign({},DEFCFG);DECK=null;deckSrvMeta=null;deckTried=false;idbDel('deck');render();setSync('Keluar');showLogin()});
+    S.leads={};S.acts={};S.notes={};S.prods={};S.cfg=Object.assign({},DEFCFG);DECK=null;deckSrvMeta=null;deckList=null;deckTried=false;idbDel('deck');render();setSync('Keluar');showLogin()});
   setTimeout(()=>{const b=$('#okC');if(b)b.textContent='Ya, keluar'},0)}
 function acctMenu(){if(!sessionOK()){showLogin();return}
   openSheet(`<h3>Akun<button class="x" data-close>✕</button></h3>
@@ -1117,7 +1117,7 @@ function leadDetail(id){
   <h2>Riwayat aktivitas <span class="cnt">${A.length}</span></h2>
   <div class="list">${A.length?A.map(a=>{const t=AM[a.type]||AM.lain;return `<div class="act"><div class="ic">${t.i}</div><div><div class="t">${t.n} · ${fmtD(a.date)}</div><div class="m">${esc(a.result||'')}</div>${a.link?`<a href="${esc(a.link)}" target="_blank" rel="noopener" style="font-size:12px;font-weight:700">Buka di Gmail ↗</a>`:''}</div></div>`}).join(''):'<div class="empty">Belum ada aktivitas tercatat.</div>'}</div>`);
   $('#dEdit').onclick=()=>leadForm(id);
-  $('#dPres').onclick=()=>{closeSheet();if(DECK)startDeck(id);else{toast('Upload materi presentasi dulu');go('present')}};
+  $('#dPres').onclick=()=>{closeSheet();startDeck(id)};
   $('#dAct').onclick=()=>actForm(id);
   $('#dMail').onclick=()=>mailForm(id);
   document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const o=Object.assign({},l,{stage:b.dataset.st,updated:TODAY()});if(o.stage==='deal'&&l.stage!=='deal')o.dealDate=TODAY();putLead(o);toast('Tahap: '+SM[o.stage].n);leadDetail(id)});
@@ -1288,7 +1288,8 @@ document.addEventListener('click',e=>{
   if(t.id==='lgBtn')return doLogin();
   if(t.id==='dkStart')return startDeck($('#dkLead').value);
   if(t.dataset.dks!==undefined)return startDeck($('#dkLead')?$('#dkLead').value:'',+t.dataset.dks);
-  if(t.id==='dkDel')return confirmBox('Hapus materi presentasi dari semua perangkat?',()=>{closeSheet();delDeck()});
+  if(t.id==='dkDel')return confirmBox(`Hapus presentasi "${DECK?DECK.title:''}" dari semua perangkat?`,()=>{closeSheet();delDeck()});
+  if(t.dataset.dkp){setCurDeck(t.dataset.dkp);DECK=null;deckTried=false;render();return}
   if(t.id==='phDel'){savePhoto('');return}
   if(t.id==='chgPin')return chgPinForm();
   if(t.id==='mgUsers')return usersMgr();
@@ -1844,46 +1845,65 @@ function learnSlides(){const d=lrData(),out=[],nm=esc(S.cfg.name||'Sales'),spv=S
     L.querySelectorAll('.lbs').forEach((el,i)=>el.classList.toggle('on',i===k));L.querySelectorAll('.ldots i').forEach((el,i)=>el.classList.toggle('on',i===k));
     const n=$('#lcapN');n.style.opacity=0;setTimeout(()=>{n.textContent=N[k];n.style.opacity=1},500)},6500)})();
 /* =================== PRESENTASI KLIEN (company profile) =================== */
-let dkSel='',DECK=null,deckLoading=false,deckSrvMeta=null,deckErr='',deckTried=false;
+let dkSel='',DECK=null,deckLoading=false,deckSrvMeta=null,deckErr='',deckTried=false,deckList=null;
 function idb(){return new Promise((res,rej)=>{try{const r=indexedDB.open('shub',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
 async function idbGet(k){try{const d=await idb();return await new Promise(r=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}catch(e){return null}}
 async function idbSet(k,v){try{const d=await idb();await new Promise(r=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=r;t.onerror=r})}catch(e){}}
 async function idbDel(k){try{const d=await idb();await new Promise(r=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=r;t.onerror=r})}catch(e){}}
 function parseDeck(txt){const d=JSON.parse(txt);if(d.app!=='sales-hub-deck'||!Array.isArray(d.slides)||!d.slides.length)throw new Error('Bukan file presentasi Sales Hub');return d}
+function deckIdOf(v){return String(v||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,40)}
+function curDeckId(){let c='';try{c=localStorage.getItem('shub_deck')||''}catch(e){}const L=deckList||[];return L.some(d=>d.id===c)?c:(L[0]||{}).id||''}
+function setCurDeck(id){try{localStorage.setItem('shub_deck',id)}catch(e){}}
+/* daftar presentasi: dari server (sheet/db) atau dari perangkat (lokal) */
+async function fetchDeckList(){
+  if(mode==='sheet'&&sessionOK()){if(deckSrvMeta)return deckSrvMeta;const j=await apiGet();deckSrvMeta=j.decks||[];return deckSrvMeta}
+  if(mode==='db'&&cols){const col=cols.base.collection('deck');const l=await col.doc('list').get();if(l.exists)return l.data().list||[];
+    const m=await col.doc('meta').get();return m.exists?[{id:'legacy',ver:m.data().ver,title:m.data().title||'Company Profile',n:m.data().n||0}]:[]}
+  const L=await idbGet('decks');if(L)return L;
+  const old=await idbGet('deck');if(old&&old.json){try{const d=parseDeck(old.json);const l=[{id:'legacy',ver:old.ver,title:d.title,n:d.slides.length}];await idbSet('deck:legacy',old);await idbSet('decks',l);await idbDel('deck');return l}catch(e){}}
+  return []}
 async function loadDeck(force){
-  if(deckLoading)return;if(DECK&&!force&&!(deckSrvMeta&&deckSrvMeta.ver!==DECK.ver))return;
+  if(deckLoading)return;
   deckLoading=true;deckErr='';if(view==='present')render();
   try{
-    const c=await idbGet('deck');let txt=c&&c.json,ver=c&&c.ver;
-    if(mode==='sheet'&&sessionOK()){
-      if(!deckSrvMeta){try{const j=await apiGet();deckSrvMeta=j.deck||null}catch(e){}}
-      if(deckSrvMeta&&deckSrvMeta.ver&&deckSrvMeta.ver!==ver){const j=await api({action:'deckGet'});if(j.data){txt=j.data;ver=(j.meta||{}).ver||deckSrvMeta.ver;await idbSet('deck',{ver,json:txt})}}
-      else if(!deckSrvMeta&&txt){txt=null;await idbDel('deck')}
-    }else if(mode==='db'&&cols){
-      const m=await cols.base.collection('deck').doc('meta').get();
-      if(m.exists){const md=m.data();if(md.ver!==ver){const parts=[];for(let i=0;i<md.n;i++){const d=await cols.base.collection('deck').doc('c'+String(i).padStart(3,'0')).get();parts.push(d.exists?d.data().s:'')}txt=parts.join('');ver=md.ver;await idbSet('deck',{ver,json:txt})}}
-      else if(txt){txt=null;await idbDel('deck')}
-    }
-    DECK=txt?Object.assign(parseDeck(txt),{ver}):null;
-  }catch(e){deckErr=e.message||'Gagal memuat presentasi'}
+    deckList=await fetchDeckList();
+    const id=curDeckId(),meta=(deckList||[]).find(d=>d.id===id);
+    if(!meta){DECK=null}
+    else if(DECK&&DECK.id===id&&DECK.ver===meta.ver&&!force){}
+    else{
+      let c=await idbGet('deck:'+id);if(!c&&id==='legacy')c=await idbGet('deck');
+      let txt=c&&c.json,ver=c&&c.ver;
+      if(meta.ver!==ver){
+        if(mode==='sheet'&&sessionOK()){const j=await api({action:'deckGet',id});if(j.data){txt=j.data;ver=meta.ver}}
+        else if(mode==='db'&&cols){const col=cols.base.collection('deck'),pre=id==='legacy'?'c':id+'_c',parts=[];const nn=meta.chunks||meta.n;
+          const md=id==='legacy'?(await col.doc('meta').get()).data():meta;for(let i=0;i<(md.chunks||md.n);i++){const d=await col.doc(pre+String(i).padStart(3,'0')).get();parts.push(d.exists?d.data().s:'')}txt=parts.join('');ver=meta.ver}
+        if(txt)await idbSet('deck:'+id,{ver,json:txt})}
+      DECK=txt?Object.assign(parseDeck(txt),{ver,id}):null}
+  }catch(e){if(e&&e.auth){deckLoading=false;return onAuthFail()}deckErr=e.message||'Gagal memuat presentasi'}
   deckLoading=false;if(view==='present')render()}
 async function saveDeck(d){
-  d=Object.assign({},d,{ver:String(Date.now())});const txt=JSON.stringify(d);
+  const id=deckIdOf(d.id)||('d'+Date.now().toString(36));
+  d=Object.assign({},d,{id,ver:String(Date.now())});const txt=JSON.stringify(d);
   if(txt.length>12e6){toast('File presentasi terlalu besar (maks ±12 MB)');return}
-  await idbSet('deck',{ver:d.ver,json:txt});DECK=d;render();
+  const L=(deckList||[]).filter(x=>x.id!==id);if(L.length>=8){toast('Maksimal 8 presentasi — hapus salah satu dulu');return}
+  const meta={id,ver:d.ver,title:d.title||'Presentasi',n:d.slides.length};
+  await idbSet('deck:'+id,{ver:d.ver,json:txt});deckList=[...L,meta];setCurDeck(id);DECK=d;render();
   try{
     if(mode==='sheet'&&sessionOK()){const CH=40000,parts=[];for(let i=0;i<txt.length;i+=CH)parts.push(txt.slice(i,i+CH));
-      for(let i=0;i<parts.length;i+=8){toast(`Mengunggah presentasi… ${Math.min(100,Math.round((i+8)/parts.length*100))}%`);await api({action:'deckPut',reset:i===0,start:i,chunks:parts.slice(i,i+8)})}
-      await api({action:'deckDone',ver:d.ver,title:d.title,n:d.slides.length});deckSrvMeta={ver:d.ver,title:d.title,n:d.slides.length};toast('Presentasi tersimpan & tersinkron ✓')}
-    else if(mode==='db'&&cols){const CH=200000,col=cols.base.collection('deck');const old=await col.doc('meta').get();const n=Math.ceil(txt.length/CH);
-      for(let i=0;i<n;i++){toast(`Mengunggah presentasi… ${Math.round((i+1)/n*100)}%`);await col.doc('c'+String(i).padStart(3,'0')).set({s:txt.slice(i*CH,(i+1)*CH)})}
-      if(old.exists)for(let i=n;i<(old.data().n||0);i++)await col.doc('c'+String(i).padStart(3,'0')).delete();
-      await col.doc('meta').set({ver:d.ver,n,title:d.title});toast('Presentasi tersimpan & tersinkron ✓')}
-    else toast('Presentasi tersimpan di perangkat ini ✓')
+      for(let i=0;i<parts.length;i+=8){toast(`Mengunggah presentasi… ${Math.min(100,Math.round((i+8)/parts.length*100))}%`);await api({action:'deckPut',id,reset:i===0,start:i,chunks:parts.slice(i,i+8)})}
+      await api({action:'deckDone',id,ver:d.ver,title:meta.title,n:meta.n});deckSrvMeta=deckList.slice();toast('Presentasi tersimpan & tersinkron ✓')}
+    else if(mode==='db'&&cols){const CH=200000,col=cols.base.collection('deck');const n=Math.ceil(txt.length/CH);
+      for(let i=0;i<n;i++){toast(`Mengunggah presentasi… ${Math.round((i+1)/n*100)}%`);await col.doc(id+'_c'+String(i).padStart(3,'0')).set({s:txt.slice(i*CH,(i+1)*CH)})}
+      meta.chunks=n;await col.doc('list').set({list:deckList});toast('Presentasi tersimpan & tersinkron ✓')}
+    else{await idbSet('decks',deckList);toast('Presentasi tersimpan di perangkat ini ✓')}
   }catch(e){if(e.auth)return onAuthFail();toast('Tersimpan di perangkat ini, gagal sinkron: '+e.message)}}
-async function delDeck(){await idbDel('deck');DECK=null;render();
-  try{if(mode==='sheet'&&sessionOK()){await api({action:'deckDel'});deckSrvMeta=null}else if(mode==='db'&&cols){const col=cols.base.collection('deck'),m=await col.doc('meta').get();if(m.exists){for(let i=0;i<(m.data().n||0);i++)await col.doc('c'+String(i).padStart(3,'0')).delete();await col.doc('meta').delete()}}}catch(e){}
-  toast('Presentasi dihapus')}
+async function delDeck(){const id=DECK&&DECK.id||curDeckId();if(!id)return;
+  await idbDel('deck:'+id);if(id==='legacy')await idbDel('deck');deckList=(deckList||[]).filter(d=>d.id!==id);DECK=null;setCurDeck((deckList[0]||{}).id||'');
+  try{if(mode==='sheet'&&sessionOK()){await api({action:'deckDel',id});deckSrvMeta=deckList.slice()}
+    else if(mode==='db'&&cols){const col=cols.base.collection('deck');if(id==='legacy'){const m=await col.doc('meta').get();if(m.exists){for(let i=0;i<(m.data().n||0);i++)await col.doc('c'+String(i).padStart(3,'0')).delete();await col.doc('meta').delete()}}
+      await col.doc('list').set({list:deckList})}
+    else await idbSet('decks',deckList)}catch(e){}
+  toast('Presentasi dihapus');deckTried=false;render()}
 async function deckFromImages(files,title){
   files=[...files].filter(f=>/^image\//.test(f.type)).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
   if(!files.length){toast('Pilih file gambar slide (JPG/PNG)');return}
@@ -1893,23 +1913,27 @@ async function deckFromImages(files,title){
     const sc=Math.min(1,1280/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
     c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);if(!W){W=c.width;H=c.height}
     slides.push({t:files[k].name.replace(/\.[^.]+$/,''),img:c.toDataURL('image/jpeg',.78)})}
-  await saveDeck({app:'sales-hub-deck',v:1,id:'upload',title:title||'Company Profile',w:W,h:H,slides})}
+  await saveDeck({app:'sales-hub-deck',v:1,id:'img'+Date.now().toString(36),title:title||'Company Profile',w:W,h:H,slides})}
 function rPresent(){
   const el=$('#v-present');
   if(!deckLoading&&!deckTried){deckTried=true;loadDeck()}
+  const L0=deckList||[],cur=curDeckId();
+  if(DECK&&cur&&DECK.id!==cur&&!deckLoading){deckTried=false;loadDeck()}
   if(deckLoading&&!DECK){el.innerHTML='<div class="empty" style="margin-top:16px">Memuat materi presentasi…</div>';return}
   const L=leadsArr().filter(l=>l.stage!=='gagal').sort((a,b)=>a.company.localeCompare(b.company));
-  const up=`<div class="card" style="margin-top:12px"><b>${DECK?'Ganti materi presentasi':'Upload materi presentasi'}</b>
-    <div class="tip">Pakai file <b>.json</b> presentasi dari Claude, atau langsung pilih <b>gambar slide</b> (ekspor PowerPoint → Simpan sebagai JPEG/PNG).</div>
-    <div class="f" style="margin-top:8px"><label class="full">Judul (untuk upload gambar)<input id="dkTitle" value="${esc(DECK?DECK.title:'Company Profile')}"></label></div>
-    <div class="btns" style="flex-wrap:wrap"><label class="btn sm p" style="cursor:pointer">📂 File presentasi (.json)<input type="file" id="dkJson" accept=".json,.txt,application/json,text/plain" hidden></label><label class="btn sm n" style="cursor:pointer">🖼️ Gambar slide<input type="file" id="dkImgs" accept="image/*" multiple hidden></label>${DECK?'<button class="btn sm d" id="dkDel">Hapus</button>':''}</div></div>`;
-  if(!DECK){el.innerHTML=`<div class="card" style="margin-top:14px;text-align:center;padding:22px 16px"><div style="font-size:38px">🎤</div><div style="font-weight:800;font-size:16px;margin-top:6px">Belum ada materi presentasi</div><div class="tip">Upload company profile sekali, lalu bisa dipresentasikan ke klien dari HP/laptop mana pun.</div>${deckErr?`<div class="tip" style="color:var(--red)">${esc(deckErr)}</div>`:''}</div>${up}`;return}
-  el.innerHTML=`<div class="card" style="margin-top:14px"><div style="font-weight:800;font-size:16px">${esc(DECK.title)}</div><div class="tip" style="margin-top:2px">${DECK.slides.length} slide · tampil layar penuh, geser untuk pindah slide</div>
+  const picker=L0.length?`<div class="card" style="margin-top:14px"><b>📚 Pilih presentasi</b> <span class="tip" style="margin:0">(${L0.length})</span>
+    <div class="chips" style="margin-top:8px;flex-wrap:wrap">${L0.map(d=>`<button class="chip ${d.id===cur?'on':''}" data-dkp="${esc(d.id)}">${esc(d.title||'Presentasi')} · ${d.n}</button>`).join('')}</div></div>`:'';
+  const up=`<div class="card" style="margin-top:12px"><b>➕ Tambah presentasi</b>
+    <div class="tip">Pakai file <b>.json</b> presentasi dari Claude, atau pilih <b>gambar slide</b> (ekspor PowerPoint → Simpan sebagai JPEG/PNG). File .json yang sama di-upload ulang akan <b>menggantikan</b> versi lamanya. Maks 8 presentasi.</div>
+    <div class="f" style="margin-top:8px"><label class="full">Judul (untuk upload gambar)<input id="dkTitle" value="Company Profile"></label></div>
+    <div class="btns" style="flex-wrap:wrap"><label class="btn sm p" style="cursor:pointer">📂 File presentasi (.json)<input type="file" id="dkJson" accept=".json,.txt,application/json,text/plain" hidden></label><label class="btn sm n" style="cursor:pointer">🖼️ Gambar slide<input type="file" id="dkImgs" accept="image/*" multiple hidden></label></div></div>`;
+  if(!DECK){el.innerHTML=`${picker}<div class="card" style="margin-top:14px;text-align:center;padding:22px 16px"><div style="font-size:38px">🎤</div><div style="font-weight:800;font-size:16px;margin-top:6px">${L0.length?'Memuat presentasi…':'Belum ada materi presentasi'}</div><div class="tip">Upload company profile sekali, lalu bisa dipresentasikan ke klien dari HP/laptop mana pun.</div>${deckErr?`<div class="tip" style="color:var(--red)">${esc(deckErr)}</div>`:''}</div>${up}`;return}
+  el.innerHTML=`${picker}<div class="card" style="margin-top:12px"><div style="font-weight:800;font-size:16px">${esc(DECK.title)}</div><div class="tip" style="margin-top:2px">${DECK.slides.length} slide · tampil layar penuh, geser untuk pindah slide</div>
     <div class="f" style="margin-top:10px"><label class="full">Presentasikan untuk klien (opsional)<select id="dkLead"><option value="">— tanpa nama klien —</option><option value="__new">➕ Klien baru…</option>${L.map(l=>`<option value="${esc(l.id)}" ${l.id===dkSel?'selected':''}>${esc(l.company)}</option>`).join('')}</select></label></div>
-    <div class="btns"><button class="btn p" id="dkStart" style="flex:1">▶ Mulai presentasi</button></div>
+    <div class="btns"><button class="btn p" id="dkStart" style="flex:1">▶ Mulai presentasi</button><button class="btn sm d" id="dkDel">Hapus</button></div>
     <div class="tip">Dengan memilih klien, slide pembuka menampilkan nama klien & slide penutup berisi kontak kamu. Setelah selesai, presentasi bisa langsung dicatat sebagai aktivitas.</div></div>
   <h2>🖼️ Slide <span class="cnt">${DECK.slides.length}</span></h2>
-  <div class="dkgrid">${DECK.slides.map((s,i)=>`<button class="dkth" data-dks="${i}"><img src="${s.img}" alt="" loading="lazy"><span>${i+1}. ${esc(s.t||'')}</span></button>`).join('')}</div>
+  <div class="dkgrid">${DECK.slides.map((s,i)=>`<button class="dkth" data-dks="${i}"><img style="aspect-ratio:${(DECK.w&&DECK.h)?(DECK.w/DECK.h).toFixed(3):".707"};object-fit:contain" src="${s.img}" alt="" loading="lazy"><span>${i+1}. ${esc(s.t||'')}</span></button>`).join('')}</div>
   ${up}`}
 function quickClient(){openSheet(`<h3>Klien baru<button class="x" data-close>✕</button></h3><div class="tip" style="margin-top:-8px">Disimpan sebagai lead baru, lalu presentasi langsung dimulai.</div>
   <form id="qcf" class="f" style="margin-top:12px" onsubmit="return false"><label class="full">Nama perusahaan *<input name="company" placeholder="PT …"></label>
@@ -1921,7 +1945,7 @@ function quickClient(){openSheet(`<h3>Klien baru<button class="x" data-close>✕
     const o={id:uid('L'),company:d.company.trim(),pic:d.pic.trim(),role:d.role.trim(),phone:d.phone.trim(),city:d.city.trim(),stage:'baru',prio:'warm',source:'Kunjungan langsung',created:TODAY(),updated:TODAY()};
     if(o.pic)o.contacts=[{id:uid('c'),name:o.pic,role:o.role,phone:o.phone,dmu:'purchasing'}];dkSel=o.id;try{document.activeElement.blur()}catch(e){}putLead(o);closeSheet();toast('Klien tersimpan ✓');return o};
   $('#qcSave').onclick=()=>{save()};$('#qcGo').onclick=()=>{const o=save();if(o)startDeck(o.id)}}
-function startDeck(leadId,at){if(!DECK){go('present');return}meet.lead=leadId||'';meet.at=at;openMeet('profil')}
+async function startDeck(leadId,at){if(!DECK){toast('Memuat presentasi…');await loadDeck();if(!DECK){toast('Upload materi presentasi dulu');go('present');return}}meet.lead=leadId||'';meet.at=at;openMeet('profil')}
 function deckSlides(){const out=[],l=meet.lead&&S.leads[meet.lead],c=S.cfg,nm=(SH&&SH.user)||c.name||'';
   const bg=DECK.slides[0]?`background-image:linear-gradient(180deg,rgba(9,32,19,.82),rgba(9,32,19,.96)),url(${DECK.slides[0].img})`:'';
   if(l)out.push(`<div class="sl dkx" style="${bg}"><div class="dkx-in"><div class="k">${esc(DECK.title)}</div><div class="s">Dipresentasikan untuk</div><div class="t">${esc(l.company)}</div><div class="bar"></div><div class="m">${fmtD(TODAY(),true)}${nm?`<br>oleh ${esc(nm)}`:''}</div></div></div>`);
