@@ -1126,10 +1126,11 @@ let mailBusy=false;
 function autoMail(){let t=0;try{t=+localStorage.getItem('shub_mchk')||0}catch(e){}if(Date.now()-t>5*60000)checkMail(false)}
 async function checkMail(manual){
   if(mode!=='sheet'||!sessionOK()){if(manual)toast('Masuk ke Google Sheet dulu');return}
-  if(mailBusy)return;const L=leadsArr().filter(l=>l.email&&l.stage!=='gagal');
+  if(mailBusy)return;const sent={};Object.values(S.acts).forEach(a=>{if(a.type!=='email'||!a.result||/^📥/.test(a.result))return;const m=a.result.match(/→\s*([^\s(]+)/);if(m)(sent[a.leadId]=sent[a.leadId]||[]).push(...m[1].split(',').filter(x=>/@/.test(x)))});
+  const em=l=>[...new Set([l.email,...(l.mailTo||[]),...(sent[l.id]||[])].filter(Boolean))].join(',');const L=leadsArr().filter(l=>em(l)&&l.stage!=='gagal');
   if(!L.length){if(manual)toast('Belum ada lead yang punya email');return}
   mailBusy=true;if(manual)toast('Mengecek Gmail…');
-  try{const r=await api({action:'mailCheck',days:manual?60:30,leads:L.map(l=>({id:l.id,email:l.email}))});
+  try{const r=await api({action:'mailCheck',days:manual?60:30,leads:L.map(l=>({id:l.id,email:em(l)}))});
     try{localStorage.setItem('shub_mchk',String(Date.now()))}catch(e){}
     let n=0;const hit={},fresh=[];
     (r.items||[]).sort((a,b)=>a.date.localeCompare(b.date)).forEach(m=>{const aid='Am'+m.id;if(S.acts[aid]||!S.leads[m.leadId])return;
@@ -1137,7 +1138,16 @@ async function checkMail(manual){
       putAct({id:aid,leadId:l.id,leadName:l.company,type:'email',date:d,result:`📥 Balasan dari ${m.from}: "${m.subject}"\n${m.snippet}`,link:'https://mail.google.com/mail/#all/'+m.thread,nextFU:'',ts:m.date});n++;hit[l.id]=d;fresh.push(Object.assign({company:l.company},m))});
     Object.keys(hit).forEach(id=>{const l=S.leads[id];const o=Object.assign({},l,{updated:TODAY(),lastAct:hit[id]>(l.lastAct||'')?hit[id]:l.lastAct,replied:hit[id]});
       if(o.stage==='baru')o.stage='dihubungi';if(!o.nextFU||o.nextFU>TODAY())o.nextFU=TODAY();o.nextAction='Balas email klien (cek Gmail)';putLead(o)});
-    if(n)mailPopup(fresh.reverse());else if(manual)toast(`Tidak ada balasan baru (${r.checked||0} domain dicek)`);
+    if(n)mailPopup(fresh.reverse());else if(manual){try{$('#toast').classList.remove('show')}catch(e){}
+      const old=(r.items||[]).length;
+      openSheet(`<h3>📥 Tidak ada balasan baru<button class="x" data-close>✕</button></h3>
+      <div class="card" style="font-size:13.5px;line-height:1.6">
+        <div>Gmail yang dicek: <b>${esc(r.account||'-')}</b></div>
+        <div>Email masuk yang ditemukan (60 hari): <b>${r.scanned||0}</b>${r.own?` · ${r.own} dari akun sendiri (dilewati)`:''}</div>
+        <div>Sudah tercatat sebelumnya: <b>${old}</b></div>
+        <div style="margin-top:8px">Alamat/domain klien yang dicek (${(r.keys||[]).length}):</div>
+        <div style="color:var(--muted);word-break:break-all">${(r.keys||[]).map(esc).join(', ')||'-'}</div></div>
+      <div class="tip">Supaya terdeteksi: email balasan harus dikirim <b>dari alamat lain</b> (bukan ${esc(r.account||'akun ini')}) dan alamat/domain pengirimnya harus ada di kolom <b>Email</b> lead — atau pernah kamu kirimi email lewat tombol ✉️ Email. Email baru kadang perlu 1–2 menit sebelum bisa dicari.</div>`)}
   }catch(e){if(manual){const m=String(e&&e.message||e);toast(/tidak dikenal|izin|permission|authoriz/i.test(m)?'Gmail belum terhubung — jalankan izinkanGmail & deploy versi baru':'Gagal cek email: '+m)}}
   finally{mailBusy=false}}
 function mailPopup(M){
@@ -1179,7 +1189,8 @@ function mailForm(id){
   const f=$('#mf');
   const save=()=>{const d=Object.fromEntries(new FormData(f).entries());try{localStorage.setItem('shub_mail',JSON.stringify({cc:d.cc.trim(),fromName:d.fromName.trim(),sig:d.sig.trim(),from:d.from||''}))}catch(e){};return d};
   const log=(d,how)=>{const a={id:uid('A'),leadId:id,leadName:l.company,type:'email',date:TODAY(),result:`${how}: "${d.subject}" → ${d.to}${d.cc?' (cc '+d.cc+')':''}`,nextFU:addDays(3),ts:new Date().toISOString()};putAct(a);
-    const o=Object.assign({},S.leads[id],{updated:TODAY(),lastAct:a.date});if(o.stage==='baru')o.stage='dihubungi';if(!o.nextFU||o.nextFU<=a.date)o.nextFU=addDays(3);if(!o.email&&d.to)o.email=d.to;putLead(o)};
+    const o=Object.assign({},S.leads[id],{updated:TODAY(),lastAct:a.date});if(o.stage==='baru')o.stage='dihubungi';if(!o.nextFU||o.nextFU<=a.date)o.nextFU=addDays(3);if(!o.email&&d.to)o.email=d.to;
+    const rc=String(d.to||'').toLowerCase().split(/[,;\s]+/).filter(x=>/@/.test(x));o.mailTo=[...new Set([...(o.mailTo||[]),...rc])].slice(-10);putLead(o)};
   const ok=d=>{if(!d.to.trim()){f.to.focus();toast('Isi alamat email tujuan');return false}if(!d.subject.trim()||!d.body.trim()){toast('Subjek & isi wajib diisi');return false}return true};
   $('#mSig').onclick=()=>{const d=save();const t=mailTpl(l,mailPrefs());f.body.value=t.body;toast('Tanda tangan dipakai')};
   $('#mOpen').onclick=()=>{const d=save();if(!ok(d))return;
@@ -1318,8 +1329,8 @@ function drawDrawer(){
 const wide=matchMedia('(min-width:1024px)');
 function sidePref(){try{return localStorage.getItem('shub_side')!=='0'}catch(e){return true}}
 function pinned(){return wide.matches&&document.body.classList.contains('pin')}
-function applyPin(){const on=wide.matches&&sidePref();document.body.classList.toggle('pin',on);if(on){drawDrawer();$('#drw').classList.remove('on');document.body.classList.remove('drwOn')}$('#menuBtn').setAttribute('aria-expanded',String(on))}
-function toggleMenu(){if(wide.matches){const on=!document.body.classList.contains('pin');try{localStorage.setItem('shub_side',on?'1':'0')}catch(e){}applyPin();return}openDrawer()}
+function applyPin(){const on=false;document.body.classList.toggle('pin',on);if(on){drawDrawer();$('#drw').classList.remove('on');document.body.classList.remove('drwOn')}$('#menuBtn').setAttribute('aria-expanded',String(on))}
+function toggleMenu(){if(false){const on=!document.body.classList.contains('pin');try{localStorage.setItem('shub_side',on?'1':'0')}catch(e){}applyPin();return}openDrawer()}
 function openDrawer(){const m=modOf(view);if(grpOpen&&!grpOpen[m]){grpOpen[m]=true;saveGrp()}drawDrawer();$('#drw').classList.add('on');$('#drw').setAttribute('aria-hidden','false');$('#menuBtn').setAttribute('aria-expanded','true');document.body.classList.add('drwOn')}
 function closeDrawer(){if(pinned()){drawDrawer();return}$('#drw').classList.remove('on');$('#drw').setAttribute('aria-hidden','true');$('#menuBtn').setAttribute('aria-expanded','false');document.body.classList.remove('drwOn')}
 function go(v){
