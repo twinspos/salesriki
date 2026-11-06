@@ -271,6 +271,16 @@ nav.tabs{display:none}
 .wrap{padding-bottom:90px!important}
 .fab{bottom:22px!important}
 body.drwOn{overflow:hidden}
+@media (min-width:1024px){
+ body.pin{padding-left:264px}
+ body.pin .drw{visibility:visible;inset:0 auto 0 0;width:264px;z-index:30}
+ body.pin .drwBg{display:none}
+ body.pin .drwP{transform:none;width:264px;box-shadow:none;border-right:1px solid var(--line)}
+ body.pin #drwX{display:none}
+ body.pin.drwOn{overflow:auto}
+ body.pin header .in,body.pin .subnav .in,body.pin .wrap{max-width:980px}
+ body.pin .subnav{top:0}
+}
 </style>
 </head>
 <body>
@@ -1288,8 +1298,13 @@ function drawDrawer(){
   const lg=$('#hdrLogo'),dl=$('#drwLogo');if(lg&&dl)dl.innerHTML=lg.innerHTML;
   const u=(typeof SH!=='undefined'&&SH&&SH.user)?SH.user:'';$('#drwUser').textContent=u?'Masuk sebagai '+u:'Ingot Aluminium';
 }
+const wide=matchMedia('(min-width:1024px)');
+function sidePref(){try{return localStorage.getItem('shub_side')!=='0'}catch(e){return true}}
+function pinned(){return wide.matches&&document.body.classList.contains('pin')}
+function applyPin(){const on=wide.matches&&sidePref();document.body.classList.toggle('pin',on);if(on){drawDrawer();$('#drw').classList.remove('on');document.body.classList.remove('drwOn')}$('#menuBtn').setAttribute('aria-expanded',String(on))}
+function toggleMenu(){if(wide.matches){const on=!document.body.classList.contains('pin');try{localStorage.setItem('shub_side',on?'1':'0')}catch(e){}applyPin();return}openDrawer()}
 function openDrawer(){const m=modOf(view);if(grpOpen&&!grpOpen[m]){grpOpen[m]=true;saveGrp()}drawDrawer();$('#drw').classList.add('on');$('#drw').setAttribute('aria-hidden','false');$('#menuBtn').setAttribute('aria-expanded','true');document.body.classList.add('drwOn')}
-function closeDrawer(){$('#drw').classList.remove('on');$('#drw').setAttribute('aria-hidden','true');$('#menuBtn').setAttribute('aria-expanded','false');document.body.classList.remove('drwOn')}
+function closeDrawer(){if(pinned()){drawDrawer();return}$('#drw').classList.remove('on');$('#drw').setAttribute('aria-hidden','true');$('#menuBtn').setAttribute('aria-expanded','false');document.body.classList.remove('drwOn')}
 function go(v){
   if(v==='meet'){closeDrawer();openMeet('harian');return}
   view=v;const m=modOf(v);lastView[m]=v;closeDrawer();
@@ -1298,7 +1313,7 @@ function go(v){
   $('#fab').style.display=['home','leads','pipe','act','kb','goals','journal','grades'].includes(v)?'':'none';
   window.scrollTo(0,0);render();
 }
-$('#menuBtn').onclick=openDrawer;$('#drwX').onclick=closeDrawer;$('#drwBg').onclick=closeDrawer;
+$('#menuBtn').onclick=toggleMenu;try{wide.addEventListener('change',applyPin)}catch(e){wide.addListener(applyPin)}applyPin();$('#drwX').onclick=closeDrawer;$('#drwBg').onclick=closeDrawer;
 $('#drwBody').addEventListener('click',e=>{const h=e.target.closest('[data-grp]');if(!h)return;e.stopPropagation();const k=h.dataset.grp;grpOpen=grpOpen||{};grpOpen[k]=!grpOpen[k];saveGrp();drawDrawer()});
 $('#drwAll').onclick=()=>{grpOpen={};Object.keys(MODS).forEach(k=>grpOpen[k]=true);saveGrp();drawDrawer()};
 $('#drwNone').onclick=()=>{grpOpen={};saveGrp();drawDrawer()};
